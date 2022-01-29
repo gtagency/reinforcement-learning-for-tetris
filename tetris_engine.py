@@ -107,6 +107,8 @@ class GameState:
 
         # update current piece
         self.currPiece = finalPiece
+
+        # in one unit of time, the piece will be pulled down by gravity by one unit
         self.gravity()
         
 
@@ -123,7 +125,6 @@ class GameState:
             else:
                 print("Invalid movement")
                 self.lock_and_reset()
-                
                 return
         
         # clear the previous blocks
@@ -134,7 +135,6 @@ class GameState:
         # update board indices
         for piece in finalPiece:
             self.gameBoard[piece[0]][piece[1]] = 1
-
 
         # update current piece
         self.currPiece = finalPiece
@@ -158,10 +158,13 @@ class GameState:
     def lock_and_reset(self):
         width = self.width
         height = self.height
+
+        # reset the piece to the middle top of the board
         self.currPiece = [(int(width/2), int(height-1)), 
                           (int(width/2+1), int(height-1)),
                           (int(width/2+1), int(height-2))]
         
+        # update the board
         for piece in self.currPiece:
             self.gameBoard[piece[0]][piece[1]] = 1
         print(self.get_current_board())
