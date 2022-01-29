@@ -1,4 +1,4 @@
-# Authors: Neil Thistlethwaite
+# Authors: Neil Thistlethwaite, Zhao Chen(Joe)
 # (add your name above if you contribute to this file)
 # The Agency, Reinforcement Learning for Tetris
 
@@ -27,13 +27,23 @@ class GameState:
     # TODO:
     # - initialize game board here (10x20 booleans for now)
     # - initialize a current piece, with its x, y coordinates
-    def __init__(self):
-        pass
+    def __init__(self, width=10, height=20, initVal=0):
+        # Joe: assume left bottom to be (0, 0), x coordinate goes to the right, y coordinate goes to the top
+
+        self.width = width
+        self.height = height
+        self.gameBoard = [[initVal for row in range(width)] for col in range(height)]
+        self.currPiece = (width/2, height/2)
+
+        self.gameBoard[width/2][height/2] = 1
+    
 
     # TODO:
     # - return view of current game board
     def get_current_board(self):
-        pass
+        # Joe: I use 'x' to indicate an occupied position and '.' for an empty position
+        # out = [[self.gameBoard[row] for row in range(self.width)] ]
+        # print(self.gameBoard)
 
     # TODO:
     # - first: process left/right movement based on action
