@@ -35,14 +35,15 @@ class GameState:
         self.gameBoard = [[initVal for col in range(height)] for row in range(width)]
         self.currPiece = (width, height)
         self.gameBoard[width-1][height-1] = 1
-    
 
     # TODO:
     # - return view of current game board
     def get_current_board(self):
         # Joe: I use 'x' to indicate an occupied position and '.' for an empty position
-        # out = [[self.gameBoard[row] for row in range(self.width)] ]
-        print(self.gameBoard)
+        out = [['x' if self.gameBoard[row][col] else '.' for row in range(self.width)] for col in range(self.height)]
+        # print(out)
+        out.reverse()
+        return '\n'.join([''.join(x) for x in out])
 
     # TODO:
     # - first: process left/right movement based on action
@@ -65,4 +66,4 @@ class GameState:
         pass
 
 game = GameState()
-game.get_current_board()
+print(game.get_current_board())
