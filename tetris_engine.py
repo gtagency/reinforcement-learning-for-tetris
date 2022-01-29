@@ -32,10 +32,9 @@ class GameState:
 
         self.width = width
         self.height = height
-        self.gameBoard = [[initVal for row in range(width)] for col in range(height)]
-        self.currPiece = (width/2, height/2)
-
-        self.gameBoard[width/2][height/2] = 1
+        self.gameBoard = [[initVal for col in range(height)] for row in range(width)]
+        self.currPiece = (width, height)
+        self.gameBoard[width-1][height-1] = 1
     
 
     # TODO:
@@ -43,7 +42,7 @@ class GameState:
     def get_current_board(self):
         # Joe: I use 'x' to indicate an occupied position and '.' for an empty position
         # out = [[self.gameBoard[row] for row in range(self.width)] ]
-        # print(self.gameBoard)
+        print(self.gameBoard)
 
     # TODO:
     # - first: process left/right movement based on action
@@ -64,3 +63,6 @@ class GameState:
     #   - overlap with existing squares
     def _is_valid_piece_location(self, piece, x, y):
         pass
+
+game = GameState()
+game.get_current_board()
