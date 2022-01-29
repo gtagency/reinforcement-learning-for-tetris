@@ -34,7 +34,12 @@ class GameState:
         self.height = height
         self.gameBoard = [[initVal for col in range(height)] for row in range(width)]
         self.currPiece = (int(width/2), int(height-1))
+        # Joe:  I was thinking about using an array of tuples to store the currPiece positions,
+        #       Of course it is not gonna be as neat as a single piece, so an array is probably necessary
+
         self.gameBoard[int(width/2)][height-1] = 1
+        # Joe:  Similarly, the board needs to be initialized in a different way too
+        #       same for the update function later
 
     # TODO:
     # - return view of current game board
@@ -49,8 +54,11 @@ class GameState:
     # - first: process left/right movement based on action
     #   - if the movement results in invalid location/state, don't allow it
     # - then: process "gravity", attempting to move piece down
+
     #   - if the movement is invalid, then we hit something: lock the piece in
     #     place onto the board, and reset the piece to a new one
+    #   Joe: how do we know which piece to reset to? My guess is that we take the lowest piece
+
     # Neil: what I've suggested above is, in my opinion, the cleanest way to
     #  implement the core game logic, with the least code repetition. It will
     #  require the helper below, which I've also described.
@@ -90,15 +98,19 @@ class GameState:
 
 game = GameState()
 print(game.get_current_board())
-game.update((-1, 0))
+game.update((0, -1))
 print()
-game.update((-1, 0))
+game.update((0, -1))
 print()
-game.update((-1, 0))
+game.update((0, -1))
 print()
-game.update((-1, 0))
+game.update((0, -1))
 print()
-game.update((-1, 0))
+game.update((0, -1))
 print()
-game.update((-1, 0))
+game.update((0, -1))
+print()
+game.update((0, -1))
+print()
+game.update((0, -1))
 print()
