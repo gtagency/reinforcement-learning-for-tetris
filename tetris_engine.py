@@ -32,9 +32,11 @@ class GameState:
 
         self.width = width
         self.height = height
+        self.actionMap = {Action.IDLE:(0, 0), Action.LEFT:(-1, 0), Action.RIGHT:(1, 0)}
         self.gameBoard = [[initVal for col in range(height)] for row in range(width)]
 
-        self.currPiece = (int(width/2), int(height-1))
+        # one-piece only
+        # self.currPiece = (int(width/2), int(height-1)) 
 
         self.currPiece = [(int(width/2), int(height-1)), 
                           (int(width/2+1), int(height-1)),
@@ -72,18 +74,13 @@ class GameState:
         # action should be a tuple(dx, dy)
         # newX, newY = self.currPiece + action
         # newPiece = (newX, newY)
-        x, y = action
+        x, y = self.actionMap[action]
         # print(x, y)
         finalPiece = []
         for piece in self.currPiece:
             # print(piece)
             if self._is_valid_piece_location(piece, x, y):
                 # print(self.currPiece)
-                # clear the previous block and update the board
-                
-
-                # update the current piece position
-                # print(action)
                 finalPiece += [(piece[0] + x, piece[1] + y)]
                 # print(finalPiece)
                 # print(self.currPiece)    
@@ -91,12 +88,17 @@ class GameState:
                 print("Invalid movement")
                 return
         
+        # clear the previous blocks
         for piece in self.currPiece:
             self.gameBoard[piece[0]][piece[1]] = 0
 
+
+        # update board indices
         for piece in finalPiece:
             self.gameBoard[piece[0]][piece[1]] = 1
 
+
+        # update current piece
         self.currPiece = finalPiece
        
         print(self.get_current_board())
@@ -119,20 +121,19 @@ class GameState:
 
 game = GameState()
 print(game.get_current_board())
+# print()
+print(Action.LEFT.value)
+game.update(Action.LEFT)
 print()
-game.update((1, 0))
+game.update(Action.LEFT)
 print()
-game.update((1, 0))
+game.update(Action.LEFT)
 print()
-game.update((1, 0))
+game.update(Action.LEFT)
 print()
-game.update((1, 0))
+game.update(Action.LEFT)
 print()
-game.update((1, 0))
+game.update(Action.LEFT)
 print()
-game.update((0, -1))
-print()
-game.update((0, -1))
-print()
-game.update((0, -1))
+game.update(Action.LEFT)
 print()
