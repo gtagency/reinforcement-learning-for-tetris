@@ -16,12 +16,18 @@ class Action(Enum):
     # TODO-someday: change this to allow simultaneous movement and rotation?
     ROTATE_CW = 3
     ROTATE_CCW = 4
+    GRAVITY = -1
 
 # General advice from Neil for implementing this:
 # Start simple. It's tempting to want to immediately implement full
 # functionality, but it's going to be overwhelming (and result in very messy
 # code). Instead, start simple and add features incrementally. Start off with a
 # single 1x1 piece, and no colors. 
+
+class GamePiece:
+    # Joe:  I think we need different shapes of pieces and probably a class will help
+    def __init__(self):
+        pass
 
 class GameState:
     # TODO:
@@ -32,7 +38,8 @@ class GameState:
 
         self.width = width
         self.height = height
-        self.actionMap = {Action.IDLE:(0, 0), Action.LEFT:(-1, 0), Action.RIGHT:(1, 0)}
+        self.actionMap = {Action.IDLE:(0, 0), Action.LEFT:(-1, 0), 
+                          Action.RIGHT:(1, 0), Action.GRAVITY:(0, -1)}
         self.gameBoard = [[initVal for col in range(height)] for row in range(width)]
 
         # one-piece only
@@ -100,10 +107,38 @@ class GameState:
 
         # update current piece
         self.currPiece = finalPiece
-       
+        self.gravity()
+        
+
+    def gravity(self):
+        x, y = self.actionMap[Action.GRAVITY]
+        finalPiece = []
+        for piece in self.currPiece:
+            # print(piece)
+            if self._is_valid_piece_location(piece, x, y):
+                # print(self.currPiece)
+                finalPiece += [(piece[0] + x, piece[1] + y)]
+                # print(finalPiece)
+                # print(self.currPiece)    
+            else:
+                print("Invalid movement")
+                self.lock_and_reset()
+                
+                return
+        
+        # clear the previous blocks
+        for piece in self.currPiece:
+            self.gameBoard[piece[0]][piece[1]] = 0
+
+
+        # update board indices
+        for piece in finalPiece:
+            self.gameBoard[piece[0]][piece[1]] = 1
+
+
+        # update current piece
+        self.currPiece = finalPiece
         print(self.get_current_board())
-
-
 
     # TODO:
     # - implement this helper that just checks if this is a valid piece location
@@ -119,6 +154,18 @@ class GameState:
             return False
         return True
 
+    
+    def lock_and_reset(self):
+        width = self.width
+        height = self.height
+        self.currPiece = [(int(width/2), int(height-1)), 
+                          (int(width/2+1), int(height-1)),
+                          (int(width/2+1), int(height-2))]
+        
+        for piece in self.currPiece:
+            self.gameBoard[piece[0]][piece[1]] = 1
+        print(self.get_current_board())
+        
 game = GameState()
 print(game.get_current_board())
 # print()
@@ -136,4 +183,61 @@ print()
 game.update(Action.LEFT)
 print()
 game.update(Action.LEFT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.RIGHT)
+print()
+game.update(Action.GRAVITY)
+print()
+game.update(Action.GRAVITY)
+print()
+game.update(Action.GRAVITY)
+print()
+game.update(Action.GRAVITY)
+print()
+game.update(Action.GRAVITY)
+print()
+game.update(Action.GRAVITY)
+print()
+game.update(Action.GRAVITY)
+print()
+game.update(Action.GRAVITY)
 print()
