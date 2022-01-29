@@ -33,11 +33,17 @@ class GameState:
         self.width = width
         self.height = height
         self.gameBoard = [[initVal for col in range(height)] for row in range(width)]
+
         self.currPiece = (int(width/2), int(height-1))
+
+        self.currPiece = [(int(width/2), int(height-1)), 
+                          (int(width/2+1), int(height-1)),
+                          (int(width/2+1), int(height-2))]
         # Joe:  I was thinking about using an array of tuples to store the currPiece positions,
         #       Of course it is not gonna be as neat as a single piece, so an array is probably necessary
 
-        self.gameBoard[int(width/2)][height-1] = 1
+        for piece in self.currPiece:
+            self.gameBoard[piece[0]][piece[1]] = 1
         # Joe:  Similarly, the board needs to be initialized in a different way too
         #       same for the update function later
 
@@ -68,18 +74,33 @@ class GameState:
         # newPiece = (newX, newY)
         x, y = action
         # print(x, y)
-        if self._is_valid_piece_location(self.currPiece, x, y):
-            # print(self.currPiece)
-            # clear the previous block and update the board
-            self.gameBoard[self.currPiece[0]][self.currPiece[1]] = 0
-            # update the current piece position
-            # print(action)
-            self.currPiece = (self.currPiece[0] + x, self.currPiece[1] + y)
-            # print(self.currPiece)
-            self.gameBoard[self.currPiece[0]][self.currPiece[1]] = 1
-            print(self.get_current_board())
-        else:
-            print("Invalid movement")
+        finalPiece = []
+        for piece in self.currPiece:
+            # print(piece)
+            if self._is_valid_piece_location(piece, x, y):
+                # print(self.currPiece)
+                # clear the previous block and update the board
+                
+
+                # update the current piece position
+                # print(action)
+                finalPiece += [(piece[0] + x, piece[1] + y)]
+                # print(finalPiece)
+                # print(self.currPiece)    
+            else:
+                print("Invalid movement")
+                return
+        
+        for piece in self.currPiece:
+            self.gameBoard[piece[0]][piece[1]] = 0
+
+        for piece in finalPiece:
+            self.gameBoard[piece[0]][piece[1]] = 1
+
+        self.currPiece = finalPiece
+       
+        print(self.get_current_board())
+
 
 
     # TODO:
@@ -98,15 +119,16 @@ class GameState:
 
 game = GameState()
 print(game.get_current_board())
-game.update((0, -1))
 print()
-game.update((0, -1))
+game.update((1, 0))
 print()
-game.update((0, -1))
+game.update((1, 0))
 print()
-game.update((0, -1))
+game.update((1, 0))
 print()
-game.update((0, -1))
+game.update((1, 0))
+print()
+game.update((1, 0))
 print()
 game.update((0, -1))
 print()
