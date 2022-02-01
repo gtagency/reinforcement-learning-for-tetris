@@ -93,6 +93,7 @@ class GameState:
                 # print(self.currPiece)    
             else:
                 print("Invalid movement")
+                self.gravity()
                 return
         
         # clear the previous blocks
