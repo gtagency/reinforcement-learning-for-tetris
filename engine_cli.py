@@ -8,7 +8,7 @@ from tetris_engine import *
 
 def print_board(gamestate):
     print()
-    print("N/A")
+    print(gamestate.get_current_board())
     print()
 
 game = GameState()
