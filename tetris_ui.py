@@ -39,18 +39,20 @@ action_lookup = {
 
 while True:
     # Sharay: this just waits a bit before running, temporary
-    pygame.time.wait(1000)
+    pygame.time.wait(100)
+
+    # Neil: changed this a bit so that game update happens once per iteration of the outer while
+    # loop, instead of inside the pygame event loop.
+    action = Action.IDLE
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit(0)
         elif event.type == pygame.KEYDOWN:
             # Sharay: Updates the game with the key action
-            action = (action_lookup[event.key] if event.key in action_lookup else Action.IDLE)
-            game.update(action)
-        else :
-            # No key is pressed, should still update game
-            game.update(Action.IDLE)
+            if event.key in action_lookup:
+                action = action_lookup[event.key]
+    game.update(action)
 
     # cells[x][y] = True
     board = game.gameBoard
