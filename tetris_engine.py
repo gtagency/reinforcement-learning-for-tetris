@@ -32,37 +32,35 @@ class GameState:
     # TODO:
     # - initialize game board here (10x20 booleans for now)
     # - initialize a current piece, with its x, y coordinates
-    def __init__(self, width=10, height=20, initVal=0):
+    def __init__(self, width=10, height=20, init_val=0):
         # Joe: assume left bottom to be (0, 0), x coordinate goes to the right, y coordinate goes to the top
 
         self.width = width
         self.height = height
-        self.actionMap = {Action.IDLE:(0, 0), Action.LEFT:(-1, 0), 
-                          Action.RIGHT:(1, 0)}
-        self.gameBoard = [[initVal for col in range(height)] for row in range(width)]
-        # gameBoard: value = 1: locked, value = 0: empty, value = -1, current piece
+        self.curr_piece = None
+        self.action_map = {Action.IDLE:(0, 0), Action.LEFT:(-1, 0), Action.RIGHT:(1, 0)}
+        self.game_board = [[init_val for col in range(height)] for row in range(width)]
+        # game_board: value = 1: locked, value = 0: empty, value = -1, current piece
 
-        # one-piece only
-        # self.currPiece = (int(width/2), int(height-1)) 
-        self.initialize_piece()
+        self._initialize_piece()=
+        self._fill_board(-1)
 
-        self.fill_board(-1)
-
-    def initialize_piece(self):
+    def _initialize_piece(self):
         width = self.width
         height = self.height
-        self.currPiece = [(int(width/2), int(height-1)), 
-                          (int(width/2+1), int(height-1)),
-                          (int(width/2+1), int(height-2))]
+        self.curr_piece = [
+            (int(width/2), int(height-1)), 
+            (int(width/2+1), int(height-1)),
+            (int(width/2+1), int(height-2))]
                         
-    def fill_board(self, val):
-        for piece in self.currPiece:
-            self.gameBoard[piece[0]][piece[1]] = val
+    def _fill_board(self, val):
+        for piece in self.curr_piece:
+            self.game_board[piece[0]][piece[1]] = val
     # TODO:
     # - return view of current game board
     def get_current_board(self):
         # Joe: I use 'x' to indicate an occupied position and '.' for an empty position
-        out = [['x' if self.gameBoard[row][col] else '.' for row in range(self.width)] for col in range(self.height)]
+        out = [['x' if self.game_board[row][col] else '.' for row in range(self.width)] for col in range(self.height)]
         # print(out)
         out.reverse()
         return '\n'.join([''.join(x) for x in out])
@@ -81,59 +79,51 @@ class GameState:
     #  require the helper below, which I've also described.
     def update(self, action):
         # action should be a tuple(dx, dy)
-        # newX, newY = self.currPiece + action
-        # newPiece = (newX, newY)
-        x, y = self.actionMap[action]
+        x, y = self.action_map[action]
         # print(x, y)
-        finalPiece = []
-        for piece in self.currPiece:
+        final_piece = []
+        for piece in self.curr_piece:
             # print(piece)
             if self._is_valid_piece_location(piece, x, y):
-                # print(self.currPiece)
-                finalPiece += [(piece[0] + x, piece[1] + y)]
-                # print(finalPiece)
-                # print(self.currPiece)    
+                final_piece += [(piece[0] + x, piece[1] + y)]
             else:
                 print("Invalid movement")
-                self.gravity()
+                self._gravity()
                 return
         
         # clear the previous blocks
-        self.fill_board(0)
+        self._fill_board(0)
 
         # update current piece
-        self.currPiece = finalPiece
+        self.curr_piece = final_piece
         
         # update board
-        self.fill_board(-1)
+        self._fill_board(-1)
 
         # in one unit of time, the piece will be pulled down by gravity by one unit
-        self.gravity()
+        self._gravity()
         
 
-    def gravity(self):
+    def _gravity(self):
         x, y = (0, -1)
-        finalPiece = []
-        for piece in self.currPiece:
+        final_piece = []
+        for piece in self.curr_piece:
             # print(piece)
             if self._is_valid_piece_location(piece, x, y):
-                # print(self.currPiece)
-                finalPiece += [(piece[0] + x, piece[1] + y)]
-                # print(finalPiece)
-                # print(self.currPiece)    
+                final_piece += [(piece[0] + x, piece[1] + y)]
             else:
                 print("Invalid movement")
-                self.lock_and_reset()
+                self._lock_and_reset()
                 return
         
         # clear the previous blocks
-        self.fill_board(0)
+        self._fill_board(0)
 
         # update current piece
-        self.currPiece = finalPiece
+        self.curr_piece = final_piece
         
         # update board
-        self.fill_board(-1)
+        self._fill_board(-1)
 
     # TODO:
     # - implement this helper that just checks if this is a valid piece location
@@ -143,24 +133,18 @@ class GameState:
     
     def _is_valid_piece_location(self, piece, x, y):
         row, col = piece
-        # print(row, col, x, y)
         row += x
         col += y
         if row < 0 or row >= self.width:
             return False 
         if col < 0 or col >= self.height:
             return False
-        return self.gameBoard[row][col] != 1 
-        # return self.gameBoard[row][col] when the gameBoard carries only the locked pieces
-        # return True
+        return self.game_board[row][col] != 1 
 
-    
-    def lock_and_reset(self):
-
-        self.fill_board(1)
-        # reset the piece to the middle top of the board
-        self.initialize_piece()
-        
-        # update the board
-        self.fill_board(-1)
+    def _clear_line(self):
+        pass
+    def _lock_and_reset(self):
+        self._fill_board(1)
+        self._initialize_piece()
+        self._fill_board(-1)
         

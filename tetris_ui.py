@@ -55,7 +55,7 @@ while True:
     game.update(action)
 
     # cells[x][y] = True
-    board = game.gameBoard
+    board = game.game_board
 
     # Sharay: alters colors in the board
     screen.fill((0, 0, 0))
