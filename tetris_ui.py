@@ -61,7 +61,7 @@ while True:
     screen.fill((0, 0, 0))
     for i in range(len(board)):
         for j in range(len(board[0])):
-            if board[i][len(board[0]) - 1 - j] == 1:
+            if board[i][len(board[0]) - 1 - j]:
                 pygame.draw.rect(screen, (255, 255, 255),
                                  pygame.Rect(pixelSize * i, pixelSize * j, pixelSize, pixelSize))
 

@@ -16,7 +16,6 @@ class Action(Enum):
     # TODO-someday: change this to allow simultaneous movement and rotation?
     ROTATE_CW = 3
     ROTATE_CCW = 4
-    GRAVITY = -1
 
 # General advice from Neil for implementing this:
 # Start simple. It's tempting to want to immediately implement full
@@ -39,23 +38,29 @@ class GameState:
         self.width = width
         self.height = height
         self.actionMap = {Action.IDLE:(0, 0), Action.LEFT:(-1, 0), 
-                          Action.RIGHT:(1, 0), Action.GRAVITY:(0, -1)}
+                          Action.RIGHT:(1, 0)}
         self.gameBoard = [[initVal for col in range(height)] for row in range(width)]
+        # gameBoard: value = 1: locked, value = 0: empty, value = -1, current piece
 
         # one-piece only
         # self.currPiece = (int(width/2), int(height-1)) 
-
-        self.currPiece = [(int(width/2), int(height-1)), 
-                          (int(width/2+1), int(height-1)),
-                          (int(width/2+1), int(height-2))]
+        self.initialize_piece()
+        
         # Joe:  I was thinking about using an array of tuples to store the currPiece positions,
         #       Of course it is not gonna be as neat as a single piece, so an array is probably necessary
 
-        for piece in self.currPiece:
-            self.gameBoard[piece[0]][piece[1]] = 1
-        # Joe:  Similarly, the board needs to be initialized in a different way too
-        #       same for the update function later
+        self.fill_board(-1)
 
+    def initialize_piece(self):
+        width = self.width
+        height = self.height
+        self.currPiece = [(int(width/2), int(height-1)), 
+                          (int(width/2+1), int(height-1)),
+                          (int(width/2+1), int(height-2))]
+                        
+    def fill_board(self, val):
+        for piece in self.currPiece:
+            self.gameBoard[piece[0]][piece[1]] = val
     # TODO:
     # - return view of current game board
     def get_current_board(self):
@@ -97,24 +102,20 @@ class GameState:
                 return
         
         # clear the previous blocks
-        for piece in self.currPiece:
-            self.gameBoard[piece[0]][piece[1]] = 0
-
-
-        # update board indices
-        for piece in finalPiece:
-            self.gameBoard[piece[0]][piece[1]] = 1
-
+        self.fill_board(0)
 
         # update current piece
         self.currPiece = finalPiece
+        
+        # update board
+        self.fill_board(-1)
 
         # in one unit of time, the piece will be pulled down by gravity by one unit
         self.gravity()
         
 
     def gravity(self):
-        x, y = self.actionMap[Action.GRAVITY]
+        x, y = (0, -1)
         finalPiece = []
         for piece in self.currPiece:
             # print(piece)
@@ -129,23 +130,20 @@ class GameState:
                 return
         
         # clear the previous blocks
-        for piece in self.currPiece:
-            self.gameBoard[piece[0]][piece[1]] = 0
-
-
-        # update board indices
-        for piece in finalPiece:
-            self.gameBoard[piece[0]][piece[1]] = 1
+        self.fill_board(0)
 
         # update current piece
         self.currPiece = finalPiece
-        #print(self.get_current_board())
+        
+        # update board
+        self.fill_board(-1)
 
     # TODO:
     # - implement this helper that just checks if this is a valid piece location
     # - will need to check for
     #   - out of bounds
     #   - overlap with existing squares (have not being implemented)
+    
     def _is_valid_piece_location(self, piece, x, y):
         row, col = piece
         # print(row, col, x, y)
@@ -161,14 +159,11 @@ class GameState:
 
     
     def lock_and_reset(self):
-        width = self.width
-        height = self.height
 
+        self.fill_board(1)
         # reset the piece to the middle top of the board
-        self.currPiece = [(int(width/2), int(height-1)), 
-                          (int(width/2+1), int(height-1)),
-                          (int(width/2+1), int(height-2))]
+        self.initialize_piece()
         
         # update the board
-        for piece in self.currPiece:
-            self.gameBoard[piece[0]][piece[1]] = 1
+        self.fill_board(-1)
+        
