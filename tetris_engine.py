@@ -42,7 +42,7 @@ class GameState:
         self.game_board = [[init_val for col in range(height)] for row in range(width)]
         # game_board: value = 1: locked, value = 0: empty, value = -1, current piece
 
-        self._initialize_piece()=
+        self._initialize_piece()
         self._fill_board(-1)
 
     def _initialize_piece(self):
