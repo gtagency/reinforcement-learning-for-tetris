@@ -139,7 +139,7 @@ class GameState:
 
         # update current piece
         self.currPiece = finalPiece
-        print(self.get_current_board())
+        #print(self.get_current_board())
 
     # TODO:
     # - implement this helper that just checks if this is a valid piece location
@@ -172,4 +172,3 @@ class GameState:
         # update the board
         for piece in self.currPiece:
             self.gameBoard[piece[0]][piece[1]] = 1
-        print(self.get_current_board())
