@@ -45,9 +45,6 @@ class GameState:
         # one-piece only
         # self.currPiece = (int(width/2), int(height-1)) 
         self.initialize_piece()
-        
-        # Joe:  I was thinking about using an array of tuples to store the currPiece positions,
-        #       Of course it is not gonna be as neat as a single piece, so an array is probably necessary
 
         self.fill_board(-1)
 
@@ -153,7 +150,7 @@ class GameState:
             return False 
         if col < 0 or col >= self.height:
             return False
-        return True
+        return self.gameBoard[row][col] != 1 
         # return self.gameBoard[row][col] when the gameBoard carries only the locked pieces
         # return True
 
