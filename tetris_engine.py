@@ -149,11 +149,15 @@ class GameState:
     def _is_valid_piece_location(self, piece, x, y):
         row, col = piece
         # print(row, col, x, y)
-        if row + x < 0 or row + x >= self.width:
-            return False
-        if col + y < 0 or col + y >= self.height:
+        row += x
+        col += y
+        if row < 0 or row >= self.width:
+            return False 
+        if col < 0 or col >= self.height:
             return False
         return True
+        # return self.gameBoard[row][col] when the gameBoard carries only the locked pieces
+        # return True
 
     
     def lock_and_reset(self):
@@ -169,79 +173,3 @@ class GameState:
         for piece in self.currPiece:
             self.gameBoard[piece[0]][piece[1]] = 1
         print(self.get_current_board())
-        
-game = GameState()
-print(game.get_current_board())
-# print()
-print(Action.LEFT.value)
-game.update(Action.LEFT)
-print()
-game.update(Action.LEFT)
-print()
-game.update(Action.LEFT)
-print()
-game.update(Action.LEFT)
-print()
-game.update(Action.LEFT)
-print()
-game.update(Action.LEFT)
-print()
-game.update(Action.LEFT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.RIGHT)
-print()
-game.update(Action.GRAVITY)
-print()
-game.update(Action.GRAVITY)
-print()
-game.update(Action.GRAVITY)
-print()
-game.update(Action.GRAVITY)
-print()
-game.update(Action.GRAVITY)
-print()
-game.update(Action.GRAVITY)
-print()
-game.update(Action.GRAVITY)
-print()
-game.update(Action.GRAVITY)
-print()
