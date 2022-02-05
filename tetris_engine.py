@@ -8,7 +8,7 @@
 # methods for the UI and agent to see the game.
 
 from enum import Enum
-
+from random import randrange
 class Action(Enum):
     IDLE = 0
     LEFT = 1
@@ -24,9 +24,82 @@ class Action(Enum):
 # single 1x1 piece, and no colors. 
 
 class GamePiece:
-    # Joe:  I think we need different shapes of pieces and probably a class will help
-    def __init__(self):
-        pass
+    # seven different shapes in tetris
+    
+
+    def __init__(self, board_width=10, board_height=20):
+        self.shape_num = randrange(0, 7)
+        self.width = board_width
+        self.height = board_height
+        self.shape = []
+        self._initialize()
+    def _initialize(self):
+        #  x represents the shape
+        width = self.width
+        height = self.height
+        if self.shape_num == 0:
+            #  ----------
+            #  ----xx----
+            #  -----x----
+            #  ----------
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-2)))
+        elif self.shape_num == 1:
+            #  ----------
+            #  ----xxxx--
+            #  ----------
+            #  ----------
+            self.shape.append((int(width/2-1), int(height-1)))
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-1)))
+            self.shape.append((int(width/2+2), int(height-1)))
+        elif self.shape_num == 2:
+            #  ----------
+            #  ----xx----
+            #  ----xx----
+            #  ----------
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-1)))
+            self.shape.append((int(width/2), int(height-2)))
+            self.shape.append((int(width/2+1), int(height-2)))
+        elif self.shape_num == 3:
+            #  ----------
+            #  ----xxx---
+            #  ------x---
+            #  ----------
+            self.shape.append((int(width/2-1), int(height-1)))
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-2)))
+        elif self.shape_num == 4:
+            #  ----------
+            #  ----xx----
+            #  ----xx----
+            #  ----------
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-1)))
+            self.shape.append((int(width/2), int(height-2)))
+            self.shape.append((int(width/2+1), int(height-2)))
+        elif self.shape_num == 5:
+            #  ----------
+            #  ----xxx---
+            #  -----x----
+            #  ----------
+            self.shape.append((int(width/2-1), int(height-1)))
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-1)))
+            self.shape.append((int(width/2), int(height-2)))
+        else:
+            #  ----------
+            #  ----xx----
+            #  ---xx-----
+            #  ----------
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2-1), int(height-1)))
+            self.shape.append((int(width/2-1), int(height-2)))
+            self.shape.append((int(width/2-2), int(height-2)))
+
 
 class GameState:
     # TODO:
@@ -41,17 +114,12 @@ class GameState:
         self.action_map = {Action.IDLE:(0, 0), Action.LEFT:(-1, 0), Action.RIGHT:(1, 0)}
         self.game_board = [[init_val for col in range(height)] for row in range(width)]
         # game_board: value = 1: locked, value = 0: empty, value = -1, current piece
-
         self._initialize_piece()
         self._fill_board(-1)
 
     def _initialize_piece(self):
-        width = self.width
-        height = self.height
-        self.curr_piece = [
-            (int(width/2), int(height-1)), 
-            (int(width/2+1), int(height-1)),
-            (int(width/2+1), int(height-2))]
+        game_piece = GamePiece(board_width=self.width, board_height=self.height)
+        self.curr_piece = game_piece.shape
                         
     def _fill_board(self, val):
         for piece in self.curr_piece:
