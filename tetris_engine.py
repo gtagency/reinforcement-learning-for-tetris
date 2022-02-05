@@ -25,7 +25,6 @@ class Action(Enum):
 
 class GamePiece:
     # seven different shapes in tetris
-    
 
     def __init__(self, board_width=10, board_height=20):
         self.shape_num = randrange(0, 7)
@@ -39,19 +38,20 @@ class GamePiece:
         height = self.height
         if self.shape_num == 0:
             #  ----------
-            #  ----xx----
-            #  -----x----
+            #  ------x---
+            #  ----xxx---
             #  ----------
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-1)))
+            self.shape.append((int(width/2), int(height-2)))
             self.shape.append((int(width/2+1), int(height-2)))
+            self.shape.append((int(width/2-1), int(height-2)))
+            self.shape.append((int(width/2+1), int(height-1)))
         elif self.shape_num == 1:
             #  ----------
             #  ----xxxx--
             #  ----------
             #  ----------
-            self.shape.append((int(width/2-1), int(height-1)))
             self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2-1), int(height-1)))
             self.shape.append((int(width/2+1), int(height-1)))
             self.shape.append((int(width/2+2), int(height-1)))
         elif self.shape_num == 2:
@@ -59,46 +59,48 @@ class GamePiece:
             #  ----xx----
             #  ----xx----
             #  ----------
+            self.shape.append((int(width/2), int(height-2)))
             self.shape.append((int(width/2), int(height-1)))
             self.shape.append((int(width/2+1), int(height-1)))
-            self.shape.append((int(width/2), int(height-2)))
             self.shape.append((int(width/2+1), int(height-2)))
         elif self.shape_num == 3:
             #  ----------
+            #  ----x-----
             #  ----xxx---
-            #  ------x---
             #  ----------
+            self.shape.append((int(width/2), int(height-2)))
             self.shape.append((int(width/2-1), int(height-1)))
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-1)))
+            self.shape.append((int(width/2-1), int(height-2)))
             self.shape.append((int(width/2+1), int(height-2)))
         elif self.shape_num == 4:
             #  ----------
             #  ----xx----
-            #  ----xx----
+            #  -----xx---
             #  ----------
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-1)))
             self.shape.append((int(width/2), int(height-2)))
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2-1), int(height-1)))
             self.shape.append((int(width/2+1), int(height-2)))
         elif self.shape_num == 5:
             #  ----------
-            #  ----xxx---
             #  -----x----
+            #  ----xxx---
             #  ----------
-            self.shape.append((int(width/2-1), int(height-1)))
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-1)))
             self.shape.append((int(width/2), int(height-2)))
+            self.shape.append((int(width/2-1), int(height-2)))
+            self.shape.append((int(width/2), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-2)))
+            
         else:
             #  ----------
             #  ----xx----
             #  ---xx-----
             #  ----------
+            self.shape.append((int(width/2), int(height-2)))
             self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2-1), int(height-1)))
+            self.shape.append((int(width/2+1), int(height-1)))
             self.shape.append((int(width/2-1), int(height-2)))
-            self.shape.append((int(width/2-2), int(height-2)))
+
 
 
 class GameState:
@@ -111,15 +113,20 @@ class GameState:
         self.width = width
         self.height = height
         self.curr_piece = None
-        self.action_map = {Action.IDLE:(0, 0), Action.LEFT:(-1, 0), Action.RIGHT:(1, 0)}
+        self.action_map = {
+            Action.IDLE: (0, 0), 
+            Action.LEFT: (-1, 0), Action.RIGHT: (1, 0), 
+            Action.ROTATE_CW: (1, -1), Action.ROTATE_CCW: (-1, 1)
+        }
         self.game_board = [[init_val for col in range(height)] for row in range(width)]
+        self.game_piece = None
         # game_board: value = 1: locked, value = 0: empty, value = -1, current piece
         self._initialize_piece()
         self._fill_board(-1)
 
     def _initialize_piece(self):
-        game_piece = GamePiece(board_width=self.width, board_height=self.height)
-        self.curr_piece = game_piece.shape
+        self.game_piece = GamePiece(board_width=self.width, board_height=self.height)
+        self.curr_piece = self.game_piece.shape
                         
     def _fill_board(self, val):
         for piece in self.curr_piece:
@@ -140,9 +147,8 @@ class GameState:
 
     #   - if the movement is invalid, then we hit something: lock the piece in
     #     place onto the board, and reset the piece to a new one
-    #   Joe: how do we know which piece to reset to? My guess is that we take the lowest piece
 
-    # Neil: what I've suggested above is, in my opinion, the cleanest way to
+    #  Neil: what I've suggested above is, in my opinion, the cleanest way to
     #  implement the core game logic, with the least code repetition. It will
     #  require the helper below, which I've also described.
     def update(self, action):
@@ -150,14 +156,29 @@ class GameState:
         x, y = self.action_map[action]
         # print(x, y)
         final_piece = []
-        for piece in self.curr_piece:
-            # print(piece)
-            if self._is_valid_piece_location(piece, x, y):
-                final_piece += [(piece[0] + x, piece[1] + y)]
-            else:
-                print("Invalid movement")
+        if (action == Action.ROTATE_CCW or action == Action.ROTATE_CW):
+            if self.game_piece.shape_num == 2:
                 self._gravity()
                 return
+            center_x, center_y = self.curr_piece[0]
+            for piece in self.curr_piece:
+                dx = piece[0] - center_x
+                dy = piece[1] - center_y
+                if self._is_valid_piece_location(center_x+dy*x, center_y+dx*y):
+                    final_piece += [(center_x+dy*x, center_y+dx*y)]
+                else:
+                    print("Invalid movement")
+                    self._gravity()
+                    return    
+        else:
+            for piece in self.curr_piece:
+                # print(piece)
+                if self._is_valid_piece_location(piece[0] + x, piece[1] + y):
+                    final_piece += [(piece[0] + x, piece[1] + y)]
+                else:
+                    print("Invalid movement")
+                    self._gravity()
+                    return
         
         # clear the previous blocks
         self._fill_board(0)
@@ -170,14 +191,13 @@ class GameState:
 
         # in one unit of time, the piece will be pulled down by gravity by one unit
         self._gravity()
-        
 
     def _gravity(self):
         x, y = (0, -1)
         final_piece = []
         for piece in self.curr_piece:
             # print(piece)
-            if self._is_valid_piece_location(piece, x, y):
+            if self._is_valid_piece_location(piece[0] + x, piece[1] + y):
                 final_piece += [(piece[0] + x, piece[1] + y)]
             else:
                 print("Invalid movement")
@@ -199,10 +219,7 @@ class GameState:
     #   - out of bounds
     #   - overlap with existing squares (have not being implemented)
     
-    def _is_valid_piece_location(self, piece, x, y):
-        row, col = piece
-        row += x
-        col += y
+    def _is_valid_piece_location(self, row, col):
         if row < 0 or row >= self.width:
             return False 
         if col < 0 or col >= self.height:
