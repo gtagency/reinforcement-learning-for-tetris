@@ -61,9 +61,13 @@ while True:
     screen.fill((0, 0, 0))
     for i in range(len(board)):
         for j in range(len(board[0])):
-            if board[i][len(board[0]) - 1 - j]:
-                pygame.draw.rect(screen, (255, 255, 255),
-                                 pygame.Rect(pixelSize * i, pixelSize * j, pixelSize, pixelSize))
+            #if board[i][len(board[0]) - 1 - j]:
+                if board[i][j] == -1:
+                    pygame.draw.rect(screen, (255, 53, 184),
+                                     pygame.Rect(pixelSize * i, pixelSize * (len(board[0]) - 1 - j), pixelSize, pixelSize))
+                elif board[i][j] == 1:
+                    pygame.draw.rect(screen, (255, 255, 255),
+                                     pygame.Rect(pixelSize * i, pixelSize * (len(board[0]) - 1 - j), pixelSize, pixelSize))
 
 
     pygame.display.flip()
