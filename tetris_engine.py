@@ -179,10 +179,10 @@ class GameState:
 
     def _gravity(self):
         # gravity occurs once per 2s
-        if self.state_num < 2:
-            self.state_num += 1
-            return
-        self.state_num = 0
+        #if self.state_num < 2:
+        #    self.state_num += 1
+        #    return
+        #self.state_num = 0
 
         x, y = (0, -1)
         new_piece = []
@@ -191,7 +191,7 @@ class GameState:
                 new_piece.append((piece[0] + x, piece[1] + y))
             else:
                 if piece[1] >= self.height - 2:
-                    self.stop = True;
+                    self.stop = True
                 self._lock_and_reset()
                 return
         
