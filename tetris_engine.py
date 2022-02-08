@@ -183,7 +183,10 @@ class GameState:
 
     def _clear_line(self):
         allFull = True
-        for i in range(self.height - 1):
+
+        i=0
+
+        while i < (self.height - 1):
             for j in range(self.width):
                 if not self.game_board[j][i]:
                     allFull = False
@@ -195,6 +198,7 @@ class GameState:
                 i = i-1
 
             allFull = True
+            i+=1
 
     def _fall(self, row):
         for i in range(self.height - 1):
@@ -203,7 +207,7 @@ class GameState:
                     self.game_board[j][i] = self.game_board[j][i+1]
 
         for j in range(self.width):
-            self.game_board[j][self.height - 1] = False
+            self.game_board[j][self.height - 1] = 0
     
     def _lock_and_reset(self):
         self._fill_piece_in_board(1)
