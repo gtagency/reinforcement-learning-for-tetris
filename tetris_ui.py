@@ -57,6 +57,12 @@ LOCKED_COLORS = [
     (244, 204, 203)
 ]
 
+# Ori - Game Over message:
+font = pygame.font.Font('freesansbold.ttf', 15)
+text = font.render('Game Over - click R to restart', True, (255, 255, 255), (0, 0, 0))
+textRect = text.get_rect()
+textRect.center = (150, 100)
+
 while True:
     # Sharay: this just waits a bit before running, temporary
     pygame.time.wait(120)
@@ -75,24 +81,26 @@ while True:
 
     board = game.game_board
 
-    # Sharay: alters colors in the board
+    # Sharay and Ori: alters colors in the board
     screen.fill((0, 0, 0))
-    
-    for i in range(len(board)):
-        for j in range(len(board[0])):
-            # Ori - change color when locked
-            if board[i][j] > 0:
-                pygame.draw.rect(screen, LOCKED_COLORS[board[i][j] - 1],
-                                 pygame.Rect(CELL_SIZE * i,
-                                             CELL_SIZE * (GAME_HEIGHT - j - 1),
-                                             CELL_SIZE,
-                                             CELL_SIZE))
-            elif board[i][j] < 0:
-                pygame.draw.rect(screen, COLORS[(board[i][j] * -1) - 1],
-                                 pygame.Rect(CELL_SIZE * i,
-                                             CELL_SIZE * (GAME_HEIGHT - j - 1),
-                                             CELL_SIZE,
-                                             CELL_SIZE))
+    if game.stop:
+        screen.blit(text, textRect)
+    else:
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                # Ori - change color when locked
+                if board[i][j] > 0:
+                    pygame.draw.rect(screen, LOCKED_COLORS[board[i][j] - 1],
+                                     pygame.Rect(CELL_SIZE * i,
+                                                 CELL_SIZE * (GAME_HEIGHT - j - 1),
+                                                 CELL_SIZE,
+                                                 CELL_SIZE))
+                elif board[i][j] < 0:
+                    pygame.draw.rect(screen, COLORS[(board[i][j] * -1) - 1],
+                                     pygame.Rect(CELL_SIZE * i,
+                                                 CELL_SIZE * (GAME_HEIGHT - j - 1),
+                                                 CELL_SIZE,
+                                                 CELL_SIZE))
 
 
     pygame.display.flip()

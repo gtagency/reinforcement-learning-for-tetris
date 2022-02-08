@@ -103,6 +103,7 @@ class GameState:
         self.game_piece = None
         self._initialize_piece()
         self._fill_piece_in_board(-1)
+        self.stop = False
 
     def _initialize_piece(self):
         self.game_piece = GamePiece(board_width=self.width,
@@ -133,10 +134,14 @@ class GameState:
         is_new_piece_valid = True
 
         if action == Action.RESET:
+            self.stop = False
             self._reset()
             return
 
-        elif action == Action.ROTATE_CCW or action == Action.ROTATE_CW:
+        if self.stop == True:
+            return
+
+        if action == Action.ROTATE_CCW or action == Action.ROTATE_CW:
             if self.game_piece.shape_num == 2:
                 self._gravity()
                 return
@@ -178,6 +183,8 @@ class GameState:
             if self._is_valid_piece_location(piece[0] + x, piece[1] + y):
                 new_piece.append((piece[0] + x, piece[1] + y))
             else:
+                if piece[1] >= self.height - 2:
+                    self.stop = True;
                 self._lock_and_reset()
                 return
         
