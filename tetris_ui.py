@@ -11,29 +11,17 @@ play the game. Uses pygame and supports arrow keys and WASD controls.
 import pygame
 import sys
 from tetris_engine import *
-# Sharay: makes a game but doesn't do anything with it yet
-game = GameState()
 
 pygame.init()
 
-# Sharay: board to be displayed
-"""board = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]"""
+game = GameState()
 
 # Sharay: some basic information, makes adapting the program easier
-pixelSize = 30
-gridx = game.width
-gridy = game.height
+CELL_SIZE = 30
+GAME_WIDTH = game.width
+GAME_HEIGHT = game.height
 
-screen = pygame.display.set_mode((pixelSize * gridx, pixelSize * gridy))
+screen = pygame.display.set_mode((CELL_SIZE * GAME_WIDTH, CELL_SIZE * GAME_HEIGHT))
 
 # Sharay: Actions currently supported
 action_lookup = {
@@ -45,48 +33,65 @@ action_lookup = {
     pygame.K_d: Action.RIGHT,
     pygame.K_w: Action.ROTATE_CW,
     pygame.K_s: Action.ROTATE_CCW
-    }
+}
 
+# Ori - Colors:
+COLORS = [
+    (255, 255, 0),  # Yellow
+    (255, 0, 255),  # Magenta
+    (0, 255, 255),  # Cyan
+    (255, 0, 0),    # Red
+    (0, 0, 255),    # Blue
+    (0, 255, 0),    # Green
+    (255, 53, 184)  # Pink
+]
 
-# clock = pygame.time.Clock()
-
+LOCKED_COLORS = [
+    (250, 249, 223),
+    (223, 185, 208),
+    (163, 220, 228),
+    (255, 203, 165),
+    (167, 183, 222),
+    (206, 240, 161),
+    (244, 204, 203)
+]
 
 while True:
     # Sharay: this just waits a bit before running, temporary
     pygame.time.wait(100)
 
-    # Neil: changed this a bit so that game update happens once per iteration of the outer while
-    # loop, instead of inside the pygame event loop.
     action = Action.IDLE
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit(0)
         elif event.type == pygame.KEYDOWN:
-            # Sharay: Updates the game with the key action
             if event.key in action_lookup:
                 action = action_lookup[event.key]
+                
+    # Sharay: Updates the game with the key action
     game.update(action)
 
-    # cells[x][y] = True
     board = game.game_board
-
-    # Ori - colors: yellow, magenta, cyan, red, blue, green, pink
-    colors = [(255, 255, 0), (255, 0, 255), (0, 255, 255), (255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 53, 184)]
-    locked_colors = [(250, 249, 223), (223, 185, 208), (163, 220, 228), (255, 203, 165), (167, 183, 222),
-                     (206, 240, 161), (244, 204, 203)]
 
     # Sharay: alters colors in the board
     screen.fill((0, 0, 0))
+    
     for i in range(len(board)):
         for j in range(len(board[0])):
-    # Ori - change color when locked
+            # Ori - change color when locked
             if board[i][j] > 0:
-                pygame.draw.rect(screen, locked_colors[board[i][j] - 1],
-                                 pygame.Rect(pixelSize * (i), pixelSize * (len(board[0]) - j - 1), pixelSize, pixelSize))
+                pygame.draw.rect(screen, LOCKED_COLORS[board[i][j] - 1],
+                                 pygame.Rect(CELL_SIZE * i,
+                                             CELL_SIZE * (GAME_HEIGHT - j - 1),
+                                             CELL_SIZE,
+                                             CELL_SIZE))
             elif board[i][j] < 0:
-                pygame.draw.rect(screen, colors[(board[i][j] * -1) - 1],
-                                 pygame.Rect(pixelSize * (i), pixelSize * (len(board[0]) - j - 1), pixelSize, pixelSize))
+                pygame.draw.rect(screen, COLORS[(board[i][j] * -1) - 1],
+                                 pygame.Rect(CELL_SIZE * i,
+                                             CELL_SIZE * (GAME_HEIGHT - j - 1),
+                                             CELL_SIZE,
+                                             CELL_SIZE))
 
 
     pygame.display.flip()
