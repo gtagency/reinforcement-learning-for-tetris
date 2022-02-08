@@ -20,6 +20,56 @@ class Action(Enum):
     ROTATE_CW = 3
     ROTATE_CCW = 4
 
+GAME_PIECE_OFFSETS = [
+    # Shape 0: L piece
+    #  -------
+    #  ----x--
+    #  --xxx--
+    #  -------
+    [(0, -1), (1, -1), (-1, -1), (1, 0)],
+
+    # Shape 1: I piece
+    #  --------
+    #  --xxxx--
+    #  --------
+    [(0, 0), (-1, 0), (1, 0), (2, 0)],
+
+    # Shape 2: O piece
+    #  ------
+    #  --xx--
+    #  --xx--
+    #  ------
+    [(0, -1), (0, 0), (1, 0), (1, -1)],
+
+    # Shape 3: J piece
+    #  -------
+    #  --x----
+    #  --xxx--
+    #  -------
+    [(0, -1), (-1, 0), (-1, -1), (1, -1)],
+
+    # Shape 4: Z piece
+    #  -------
+    #  --xx---
+    #  ---xx--
+    #  -------
+    [(0, -1), (0, 0), (-1, 0), (1, -1)],
+
+    # Shape 5: T piece
+    #  -------
+    #  ---x---
+    #  --xxx--
+    #  -------
+    [(0, -1), (-1, -1), (0, 0), (1, -1)],
+
+    # Shape 6: S piece
+    #  -------
+    #  ---xx--
+    #  --xx---
+    #  -------
+    [(0, -1), (0, 0), (1, 0), (-1, -1)],
+]
+
 
 class GamePiece:
     # seven different shapes in tetris
@@ -31,72 +81,9 @@ class GamePiece:
         self._initialize()
         
     def _initialize(self):
-        #  x represents the shape
-        width = self.width
-        height = self.height
-        if self.shape_num == 0:
-            #  ----------
-            #  ------x---
-            #  ----xxx---
-            #  ----------
-            self.shape.append((int(width/2), int(height-2)))
-            self.shape.append((int(width/2+1), int(height-2)))
-            self.shape.append((int(width/2-1), int(height-2)))
-            self.shape.append((int(width/2+1), int(height-1)))
-        elif self.shape_num == 1:
-            #  ----------
-            #  ----xxxx--
-            #  ----------
-            #  ----------
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2-1), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-1)))
-            self.shape.append((int(width/2+2), int(height-1)))
-        elif self.shape_num == 2:
-            #  ----------
-            #  ----xx----
-            #  ----xx----
-            #  ----------
-            self.shape.append((int(width/2), int(height-2)))
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-2)))
-        elif self.shape_num == 3:
-            #  ----------
-            #  ----x-----
-            #  ----xxx---
-            #  ----------
-            self.shape.append((int(width/2), int(height-2)))
-            self.shape.append((int(width/2-1), int(height-1)))
-            self.shape.append((int(width/2-1), int(height-2)))
-            self.shape.append((int(width/2+1), int(height-2)))
-        elif self.shape_num == 4:
-            #  ----------
-            #  ----xx----
-            #  -----xx---
-            #  ----------
-            self.shape.append((int(width/2), int(height-2)))
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2-1), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-2)))
-        elif self.shape_num == 5:
-            #  ----------
-            #  -----x----
-            #  ----xxx---
-            #  ----------
-            self.shape.append((int(width/2), int(height-2)))
-            self.shape.append((int(width/2-1), int(height-2)))
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-2)))
-        else:
-            #  ----------
-            #  ----xx----
-            #  ---xx-----
-            #  ----------
-            self.shape.append((int(width/2), int(height-2)))
-            self.shape.append((int(width/2), int(height-1)))
-            self.shape.append((int(width/2+1), int(height-1)))
-            self.shape.append((int(width/2-1), int(height-2)))
+        shape_offsets = GAME_PIECE_OFFSETS[self.shape_num]
+        for dx, dy in shape_offsets:
+            self.shape.append((self.width//2 + dx, self.height - 1 + dy))
 
 
 class GameState:
