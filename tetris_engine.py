@@ -172,6 +172,8 @@ class GameState:
         self.current_piece = new_piece
         self._fill_piece_in_board(-1)
 
+        self._clear_line()
+
     def _is_valid_piece_location(self, row, col):
         if row < 0 or row >= self.width:
             return False 
@@ -180,7 +182,28 @@ class GameState:
         return self.game_board[row][col] <= 0
 
     def _clear_line(self):
-        pass
+        allFull = True
+        for i in range(self.height - 1):
+            for j in range(self.width):
+                if not self.game_board[j][i]:
+                    allFull = False
+            if allFull:
+
+                for j in range(self.width):
+                    self.game_board[j][i] = False
+                self._fall(i)
+                i = i-1
+
+            allFull = True
+
+    def _fall(self, row):
+        for i in range(self.height - 1):
+            for j in range(self.width):
+                if i >= row:
+                    self.game_board[j][i] = self.game_board[j][i+1]
+
+        for j in range(self.width):
+            self.game_board[j][self.height - 1] = False
     
     def _lock_and_reset(self):
         self._fill_piece_in_board(1)
