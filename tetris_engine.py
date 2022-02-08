@@ -1,11 +1,13 @@
-# Authors: Neil Thistlethwaite, Zhao Chen(Joe)
-# (add your name above if you contribute to this file)
-# The Agency, Reinforcement Learning for Tetris
+"""
+Authors: Zhao Chen (Joe), Neil Thistlethwaite
+(add your name above if you contribute to this file)
+The Agency, Reinforcement Learning for Tetris
 
-# Primary goal of this file is to allow us to simulate the game of Tetris. Each
-# "GameState" object will keep track of the current state of the game, and we'll
-# call its {update} method every game tick with inputs. This will also expose
-# methods for the UI and agent to see the game.
+Primary goal of this file is to allow us to simulate the game of Tetris. Each
+"GameState" object will keep track of the current state of the game, and we'll
+call its {update} method every game tick with inputs. This will also expose
+methods for the UI and agent to see the game.
+"""
 
 from enum import Enum
 from random import randrange
@@ -17,21 +19,16 @@ class Action(Enum):
     ROTATE_CW = 3
     ROTATE_CCW = 4
 
-# General advice from Neil for implementing this:
-# Start simple. It's tempting to want to immediately implement full
-# functionality, but it's going to be overwhelming (and result in very messy
-# code). Instead, start simple and add features incrementally. Start off with a
-# single 1x1 piece, and no colors. 
 
 class GamePiece:
     # seven different shapes in tetris
-
     def __init__(self, board_width=10, board_height=20):
         self.shape_num = randrange(0, 7)
         self.width = board_width
         self.height = board_height
         self.shape = []
         self._initialize()
+        
     def _initialize(self):
         #  x represents the shape
         width = self.width

@@ -1,8 +1,11 @@
-# Authors: Neil Thistlethwaite
-# (add your name above if you contribute to this file)
-# The Agency, Reinforcement Learning for Tetris
+"""
+Authors: Neil Thistlethwaite
+(add your name above if you contribute to this file)
+The Agency, Reinforcement Learning for Tetris
 
-# This file is mostly meant for testing the engine with a minimal interface
+DEPRECATED - this file was meant to allow initial testing of the Tetris engine
+before we had a proper UI implemented. Now we do, use {tetris_ui.py} instead.
+"""
 
 from tetris_engine import *
 

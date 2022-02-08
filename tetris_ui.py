@@ -1,3 +1,13 @@
+"""
+Authors: Sharay Gao, Ori Yoked, Neil Thistlethwaite
+(add your name above if you contribute to this file)
+The Agency, Reinforcement Learning for Tetris
+
+This file provides a UI that can be used to play the Tetris game (using the
+engine in {tetris_engine.py}), and possibly in the future to watch our agents
+play the game. Uses pygame and supports arrow keys and WASD controls.
+"""
+
 import pygame
 import sys
 from tetris_engine import *
