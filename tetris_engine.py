@@ -99,35 +99,31 @@ class GamePiece:
             self.shape.append((int(width/2-1), int(height-2)))
 
 
-
 class GameState:
-    def __init__(self, width=10, height=20, init_val=0):
+    def __init__(self, width=10, height=20):
         # Joe: assume bottom left to be (0, 0), x coordinate goes to the right,
         #      y coordinate goes up
         self.width = width
         self.height = height
-        self.curr_piece = None
-        self.action_map = {
-            Action.IDLE: (0, 0), 
-            Action.LEFT: (-1, 0), Action.RIGHT: (1, 0), 
-            Action.ROTATE_CW: (1, -1), Action.ROTATE_CCW: (-1, 1)
-        }
+        self.current_piece = None
         # {self.game_board} entries correspond to following cell states:
         #    0  empty cell
         #   +k  locked with piece of type k
         #   -k  holding current piece of type k
-        self.game_board = [[init_val for col in range(height)] for row in range(width)]
+        self.game_board = [[0 for col in range(height)] for row in range(width)]
         self.game_piece = None
         self._initialize_piece()
-        self._fill_board(-1)
+        self._fill_piece_in_board(-1)
 
     def _initialize_piece(self):
-        self.game_piece = GamePiece(board_width=self.width, board_height=self.height)
-        self.curr_piece = self.game_piece.shape
+        self.game_piece = GamePiece(board_width=self.width,
+                                    board_height=self.height)
+        self.current_piece = self.game_piece.shape
 
-    def _fill_board(self, val):
-        for piece in self.curr_piece:
-            self.game_board[piece[0]][piece[1]] = val * (self.game_piece.shape_num + 1)
+    def _fill_piece_in_board(self, multiplier):
+        # multiplier should be 0, +1, or -1, according to piece state
+        for piece in self.current_piece:
+            self.game_board[piece[0]][piece[1]] = multiplier * (self.game_piece.shape_num + 1)
 
     ## DEPRECATED
     def get_current_board(self):
@@ -137,60 +133,57 @@ class GameState:
 
     def update(self, action):
         # convert action to a tuple(dx, dy)
-        x, y = self.action_map[action]
-        final_piece = []
-        if (action == Action.ROTATE_CCW or action == Action.ROTATE_CW):
+        new_piece = []
+        is_new_piece_valid = True
+
+        if action == Action.ROTATE_CCW or action == Action.ROTATE_CW:
             if self.game_piece.shape_num == 2:
                 self._gravity()
                 return
-            center_x, center_y = self.curr_piece[0]
-            for piece in self.curr_piece:
-                dx = piece[0] - center_x
-                dy = piece[1] - center_y
-                if self._is_valid_piece_location(center_x+dy*x, center_y+dx*y):
-                    final_piece += [(center_x+dy*x, center_y+dx*y)]
+            xy_mul = -1 if action == Action.ROTATE_CCW else 1
+            center_x, center_y = self.current_piece[0]
+            for piece in self.current_piece:
+                rel_x = piece[0] - center_x
+                rel_y = piece[1] - center_y
+                new_x = center_x + rel_y * xy_mul
+                new_y = center_y + rel_x * xy_mul * -1
+                if self._is_valid_piece_location(new_x, new_y):
+                    new_piece.append((new_x, new_y))
                 else:
-                    self._gravity()
-                    return    
-        else:
-            for piece in self.curr_piece:
-                if self._is_valid_piece_location(piece[0] + x, piece[1] + y):
-                    final_piece += [(piece[0] + x, piece[1] + y)]
+                    is_new_piece_valid = False
+                    break
+        elif action == Action.LEFT or action == Action.RIGHT:
+            dx, dy = (1, 0) if action == Action.RIGHT else (-1, 0)
+            for piece in self.current_piece:
+                if self._is_valid_piece_location(piece[0] + dx, piece[1] + dy):
+                    new_piece.append((piece[0] + dx, piece[1] + dy))
                 else:
-                    self._gravity()
-                    return
-        
-        # clear the previous blocks
-        self._fill_board(0)
+                    is_new_piece_valid = False
+                    break
 
-        # update current piece
-        self.curr_piece = final_piece
-        
-        # update board
-        self._fill_board(-1)
+        if action != Action.IDLE and is_new_piece_valid:
+            # Clear previous piece, update current piece, and fill it in board
+            self._fill_piece_in_board(0)
+            self.current_piece = new_piece
+            self._fill_piece_in_board(-1)
 
         # TODO-someday: consider making gravity happen less often?
         self._gravity()
 
     def _gravity(self):
         x, y = (0, -1)
-        final_piece = []
-        for piece in self.curr_piece:
-            # print(piece)
+        new_piece = []
+        for piece in self.current_piece:
             if self._is_valid_piece_location(piece[0] + x, piece[1] + y):
-                final_piece += [(piece[0] + x, piece[1] + y)]
+                new_piece.append((piece[0] + x, piece[1] + y))
             else:
                 self._lock_and_reset()
                 return
         
-        # clear the previous blocks
-        self._fill_board(0)
-
-        # update current piece
-        self.curr_piece = final_piece
-        
-        # update board
-        self._fill_board(-1)
+        # Clear previous piece, update current piece, and fill it in board
+        self._fill_piece_in_board(0)
+        self.current_piece = new_piece
+        self._fill_piece_in_board(-1)
 
     def _is_valid_piece_location(self, row, col):
         if row < 0 or row >= self.width:
@@ -203,7 +196,7 @@ class GameState:
         pass
     
     def _lock_and_reset(self):
-        self._fill_board(1)
+        self._fill_piece_in_board(1)
         self._initialize_piece()
-        self._fill_board(-1)
+        self._fill_piece_in_board(-1)
 
