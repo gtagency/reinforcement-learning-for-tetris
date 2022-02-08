@@ -1,5 +1,5 @@
 """
-Authors: Zhao Chen (Joe), Neil Thistlethwaite
+Authors: Zhao Chen (Joe), Ori Yoked, Neil Thistlethwaite
 (add your name above if you contribute to this file)
 The Agency, Reinforcement Learning for Tetris
 
@@ -10,7 +10,8 @@ methods for the UI and agent to see the game.
 """
 
 from enum import Enum
-from random import randrange
+import random
+
 class Action(Enum):
     IDLE = 0
     LEFT = 1
@@ -23,7 +24,7 @@ class Action(Enum):
 class GamePiece:
     # seven different shapes in tetris
     def __init__(self, board_width=10, board_height=20):
-        self.shape_num = randrange(0, 7)
+        self.shape_num = random.randrange(0, 7)
         self.width = board_width
         self.height = board_height
         self.shape = []
@@ -87,7 +88,6 @@ class GamePiece:
             self.shape.append((int(width/2-1), int(height-2)))
             self.shape.append((int(width/2), int(height-1)))
             self.shape.append((int(width/2+1), int(height-2)))
-            
         else:
             #  ----------
             #  ----xx----
@@ -101,12 +101,9 @@ class GamePiece:
 
 
 class GameState:
-    # TODO:
-    # - initialize game board here (10x20 booleans for now)
-    # - initialize a current piece, with its x, y coordinates
     def __init__(self, width=10, height=20, init_val=0):
-        # Joe: assume left bottom to be (0, 0), x coordinate goes to the right, y coordinate goes to the top
-
+        # Joe: assume bottom left to be (0, 0), x coordinate goes to the right,
+        #      y coordinate goes up
         self.width = width
         self.height = height
         self.curr_piece = None
@@ -115,9 +112,12 @@ class GameState:
             Action.LEFT: (-1, 0), Action.RIGHT: (1, 0), 
             Action.ROTATE_CW: (1, -1), Action.ROTATE_CCW: (-1, 1)
         }
+        # {self.game_board} entries correspond to following cell states:
+        #    0  empty cell
+        #   +k  locked with piece of type k
+        #   -k  holding current piece of type k
         self.game_board = [[init_val for col in range(height)] for row in range(width)]
         self.game_piece = None
-        # game_board: value = 1: locked, value = 0: empty, value = -1, current piece
         self._initialize_piece()
         self._fill_board(-1)
 
@@ -128,30 +128,16 @@ class GameState:
     def _fill_board(self, val):
         for piece in self.curr_piece:
             self.game_board[piece[0]][piece[1]] = val * (self.game_piece.shape_num + 1)
-    # TODO:
-    # - return view of current game board
+
+    ## DEPRECATED
     def get_current_board(self):
-        # Joe: I use 'x' to indicate an occupied position and '.' for an empty position
         out = [['x' if self.game_board[row][col] else '.' for row in range(self.width)] for col in range(self.height)]
-        # print(out)
         out.reverse()
         return '\n'.join([''.join(x) for x in out])
 
-    # TODO:
-    # - first: process left/right movement based on action
-    #   - if the movement results in invalid location/state, don't allow it
-    # - then: process "gravity", attempting to move piece down
-
-    #   - if the movement is invalid, then we hit something: lock the piece in
-    #     place onto the board, and reset the piece to a new one
-
-    #  Neil: what I've suggested above is, in my opinion, the cleanest way to
-    #  implement the core game logic, with the least code repetition. It will
-    #  require the helper below, which I've also described.
     def update(self, action):
-        # action should be a tuple(dx, dy)
+        # convert action to a tuple(dx, dy)
         x, y = self.action_map[action]
-        # print(x, y)
         final_piece = []
         if (action == Action.ROTATE_CCW or action == Action.ROTATE_CW):
             if self.game_piece.shape_num == 2:
@@ -164,16 +150,13 @@ class GameState:
                 if self._is_valid_piece_location(center_x+dy*x, center_y+dx*y):
                     final_piece += [(center_x+dy*x, center_y+dx*y)]
                 else:
-                    print("Invalid movement")
                     self._gravity()
                     return    
         else:
             for piece in self.curr_piece:
-                # print(piece)
                 if self._is_valid_piece_location(piece[0] + x, piece[1] + y):
                     final_piece += [(piece[0] + x, piece[1] + y)]
                 else:
-                    print("Invalid movement")
                     self._gravity()
                     return
         
@@ -186,7 +169,7 @@ class GameState:
         # update board
         self._fill_board(-1)
 
-        # in one unit of time, the piece will be pulled down by gravity by one unit
+        # TODO-someday: consider making gravity happen less often?
         self._gravity()
 
     def _gravity(self):
@@ -197,7 +180,6 @@ class GameState:
             if self._is_valid_piece_location(piece[0] + x, piece[1] + y):
                 final_piece += [(piece[0] + x, piece[1] + y)]
             else:
-                print("Invalid movement")
                 self._lock_and_reset()
                 return
         
@@ -210,12 +192,6 @@ class GameState:
         # update board
         self._fill_board(-1)
 
-    # TODO:
-    # - implement this helper that just checks if this is a valid piece location
-    # - will need to check for
-    #   - out of bounds
-    #   - overlap with existing squares (have not being implemented)
-    
     def _is_valid_piece_location(self, row, col):
         if row < 0 or row >= self.width:
             return False 
@@ -225,8 +201,9 @@ class GameState:
 
     def _clear_line(self):
         pass
+    
     def _lock_and_reset(self):
         self._fill_board(1)
         self._initialize_piece()
         self._fill_board(-1)
-        
+
