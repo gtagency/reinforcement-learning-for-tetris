@@ -27,6 +27,10 @@ screen = pygame.display.set_mode((pixelSize * gridx, pixelSize * gridy))
 
 # Sharay: Actions currently supported
 action_lookup = {
+    pygame.K_LEFT: Action.LEFT,
+    pygame.K_RIGHT: Action.RIGHT,
+    pygame.K_UP: Action.ROTATE_CW,
+    pygame.K_DOWN: Action.ROTATE_CCW,
     pygame.K_a: Action.LEFT,
     pygame.K_d: Action.RIGHT,
     pygame.K_w: Action.ROTATE_CW,
