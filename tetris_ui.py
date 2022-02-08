@@ -57,17 +57,22 @@ while True:
     # cells[x][y] = True
     board = game.game_board
 
+    # Ori - colors: yellow, magenta, cyan, red, blue, green, pink
+    colors = [(255, 255, 0), (255, 0, 255), (0, 255, 255), (255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 53, 184)]
+    locked_colors = [(250, 249, 223), (223, 185, 208), (163, 220, 228), (255, 203, 165), (167, 183, 222),
+                     (206, 240, 161), (244, 204, 203)]
+
     # Sharay: alters colors in the board
     screen.fill((0, 0, 0))
     for i in range(len(board)):
         for j in range(len(board[0])):
-            #if board[i][len(board[0]) - 1 - j]:
-                if board[i][j] == -1:
-                    pygame.draw.rect(screen, (255, 53, 184),
-                                     pygame.Rect(pixelSize * i, pixelSize * (len(board[0]) - 1 - j), pixelSize, pixelSize))
-                elif board[i][j] == 1:
-                    pygame.draw.rect(screen, (255, 255, 255),
-                                     pygame.Rect(pixelSize * i, pixelSize * (len(board[0]) - 1 - j), pixelSize, pixelSize))
+    # Ori - change color when locked
+            if board[i][j] > 0:
+                pygame.draw.rect(screen, locked_colors[board[i][j] - 1],
+                                 pygame.Rect(pixelSize * (i), pixelSize * (len(board[0]) - j - 1), pixelSize, pixelSize))
+            elif board[i][j] < 0:
+                pygame.draw.rect(screen, colors[(board[i][j] * -1) - 1],
+                                 pygame.Rect(pixelSize * (i), pixelSize * (len(board[0]) - j - 1), pixelSize, pixelSize))
 
 
     pygame.display.flip()

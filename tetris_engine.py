@@ -127,10 +127,10 @@ class GameState:
     def _initialize_piece(self):
         self.game_piece = GamePiece(board_width=self.width, board_height=self.height)
         self.curr_piece = self.game_piece.shape
-                        
+
     def _fill_board(self, val):
         for piece in self.curr_piece:
-            self.game_board[piece[0]][piece[1]] = val
+            self.game_board[piece[0]][piece[1]] = val * (self.game_piece.shape_num + 1)
     # TODO:
     # - return view of current game board
     def get_current_board(self):
@@ -224,7 +224,7 @@ class GameState:
             return False 
         if col < 0 or col >= self.height:
             return False
-        return self.game_board[row][col] != 1 
+        return self.game_board[row][col] <= 0
 
     def _clear_line(self):
         pass
