@@ -1,5 +1,5 @@
 """
-Authors: Zhao Chen (Joe), Ori Yoked, Neil Thistlethwaite
+Authors: Zhao Chen (Joe), Ori Yoked, Akash Vemulapalli, Neil Thistlethwaite
 (add your name above if you contribute to this file)
 The Agency, Reinforcement Learning for Tetris
 
