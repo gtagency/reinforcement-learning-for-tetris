@@ -59,7 +59,7 @@ LOCKED_COLORS = [
 
 while True:
     # Sharay: this just waits a bit before running, temporary
-    pygame.time.wait(100)
+    pygame.time.wait(120)
 
     action = Action.IDLE
     for event in pygame.event.get():
