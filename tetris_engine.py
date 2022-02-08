@@ -95,6 +95,7 @@ class GameState:
         self.width = width
         self.height = height
         self.current_piece = None
+        self.state_num = 0
         # {self.game_board} entries correspond to following cell states:
         #    0  empty cell
         #   +k  locked with piece of type k
@@ -177,6 +178,12 @@ class GameState:
         self._gravity()
 
     def _gravity(self):
+        # gravity occurs once per 2s
+        if self.state_num < 2:
+            self.state_num += 1
+            return
+        self.state_num = 0
+
         x, y = (0, -1)
         new_piece = []
         for piece in self.current_piece:
