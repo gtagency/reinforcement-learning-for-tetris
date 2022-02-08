@@ -19,6 +19,8 @@ class Action(Enum):
     # TODO-someday: change this to allow simultaneous movement and rotation?
     ROTATE_CW = 3
     ROTATE_CCW = 4
+    RESET = 5
+
 
 GAME_PIECE_OFFSETS = [
     # Shape 0: L piece
@@ -118,12 +120,23 @@ class GameState:
         out.reverse()
         return '\n'.join([''.join(x) for x in out])
 
+    def _reset(self):
+        self.current_piece = None
+        self.game_board = [[0 for col in range(self.height)] for row in range(self.width)]
+        self.game_piece = None
+        self._initialize_piece()
+        self._fill_piece_in_board(-1)
+
     def update(self, action):
         # convert action to a tuple(dx, dy)
         new_piece = []
         is_new_piece_valid = True
 
-        if action == Action.ROTATE_CCW or action == Action.ROTATE_CW:
+        if action == Action.RESET:
+            self._reset()
+            return
+
+        elif action == Action.ROTATE_CCW or action == Action.ROTATE_CW:
             if self.game_piece.shape_num == 2:
                 self._gravity()
                 return
@@ -147,6 +160,7 @@ class GameState:
                 else:
                     is_new_piece_valid = False
                     break
+
 
         if action != Action.IDLE and is_new_piece_valid:
             # Clear previous piece, update current piece, and fill it in board
@@ -207,4 +221,7 @@ class GameState:
         self._clear_lines()
         self._initialize_piece()
         self._fill_piece_in_board(-1)
+
+
+
 

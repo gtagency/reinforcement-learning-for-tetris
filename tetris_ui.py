@@ -32,7 +32,8 @@ action_lookup = {
     pygame.K_a: Action.LEFT,
     pygame.K_d: Action.RIGHT,
     pygame.K_w: Action.ROTATE_CW,
-    pygame.K_s: Action.ROTATE_CCW
+    pygame.K_s: Action.ROTATE_CCW,
+    pygame.K_r: Action.RESET
 }
 
 # Ori - Colors:
