@@ -12,6 +12,10 @@ methods for the UI and agent to see the game.
 from enum import Enum
 import random
 
+GAME_END_REWARD = -200
+LINE_CLEAR_REWARD = 10
+NEW_PIECE_REWARD = 1
+
 class Action(Enum):
     IDLE = 0
     LEFT = 1
@@ -96,6 +100,7 @@ class GameState:
         self.height = height
         self.current_piece = None
         self.state_num = 0
+        self.reward = 0
         # {self.game_board} entries correspond to following cell states:
         #    0  empty cell
         #   +k  locked with piece of type k
@@ -110,6 +115,7 @@ class GameState:
         self.game_piece = GamePiece(board_width=self.width,
                                     board_height=self.height)
         self.current_piece = self.game_piece.shape
+        self.reward += NEW_PIECE_REWARD
 
     def _fill_piece_in_board(self, multiplier):
         # multiplier should be 0, +1, or -1, according to piece state
@@ -126,6 +132,7 @@ class GameState:
         self.current_piece = None
         self.game_board = [[0 for col in range(self.height)] for row in range(self.width)]
         self.game_piece = None
+        self.reward = 0
         self._initialize_piece()
         self._fill_piece_in_board(-1)
 
@@ -191,6 +198,7 @@ class GameState:
                 new_piece.append((piece[0] + x, piece[1] + y))
             else:
                 if piece[1] >= self.height - 2:
+                    self.reward += GAME_END_REWARD
                     self.stop = True
                 self._lock_and_reset()
                 return
@@ -222,6 +230,7 @@ class GameState:
             i += 1
 
     def _fall(self, row):
+        self.reward+=LINE_CLEAR_REWARD
         for i in range(self.height - 1):
             for j in range(self.width):
                 if i >= row:

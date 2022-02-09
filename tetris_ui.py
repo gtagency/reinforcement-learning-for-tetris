@@ -59,7 +59,7 @@ LOCKED_COLORS = [
 
 # Ori - Game Over message:
 font = pygame.font.Font('freesansbold.ttf', 15)
-text = font.render('Game Over - click R to restart', True, (255, 255, 255), (0, 0, 0))
+text = font.render("Game Over - Score: " + str(game.reward) + "- R to restart", True, (255, 255, 255), (0, 0, 0))
 textRect = text.get_rect()
 textRect.center = (150, 100)
 
@@ -84,6 +84,7 @@ while True:
     # Sharay and Ori: alters colors in the board
     screen.fill((0, 0, 0))
     if game.stop:
+        text = font.render("Game Over - Score: " + str(game.reward) + "- R to restart", True, (255, 255, 255), (0, 0, 0))
         screen.blit(text, textRect)
     else:
         for i in range(len(board)):
