@@ -21,7 +21,7 @@ action_lookup = {
     "d": Action.RIGHT,
     "w": Action.ROTATE_CW,
     "s": Action.ROTATE_CCW
-    }
+}
 
 while True:
     print_board(game)
