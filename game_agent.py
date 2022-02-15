@@ -1,8 +1,8 @@
 # This class contains game agents
 from tetris_engine import *
 import random
-from graphicsUtils import keys_waiting
-from graphicsUtils import keys_pressed
+#from graphicsUtils import keys_waiting
+#from graphicsUtils import keys_pressed
 
 class Agent:
     """
@@ -64,7 +64,9 @@ class RandomAgent(Agent):
     def __init__(self):
         self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW]
 
-    def get_move(self):
-        num = random.randrange(0, 5)
-        return self.action[num]
+    def get_move(self, state):
+        if state.stop:
+            return Action.RESET
+        else:
+            return random.choice(self.actions)
 

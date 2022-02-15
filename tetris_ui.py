@@ -11,6 +11,7 @@ play the game. Uses pygame and supports arrow keys and WASD controls.
 import pygame
 import sys
 from tetris_engine import *
+from game_agent import *
 
 pygame.init()
 
@@ -20,6 +21,10 @@ game = GameState()
 CELL_SIZE = 30
 GAME_WIDTH = game.width
 GAME_HEIGHT = game.height
+GAME_TICK_DELAY = 10
+
+IS_KEYBOARD_MODE = False
+AGENT_TYPE = RandomAgent
 
 screen = pygame.display.set_mode((CELL_SIZE * GAME_WIDTH, CELL_SIZE * GAME_HEIGHT))
 
@@ -63,9 +68,12 @@ text = font.render("Game Over - Score: " + str(game.reward) + "- R to restart", 
 textRect = text.get_rect()
 textRect.center = (150, 100)
 
+if not IS_KEYBOARD_MODE:
+    agent = AGENT_TYPE()
+
 while True:
     # Sharay: this just waits a bit before running, temporary
-    pygame.time.wait(120)
+    pygame.time.wait(GAME_TICK_DELAY)
 
     action = Action.IDLE
     for event in pygame.event.get():
@@ -75,9 +83,12 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key in action_lookup:
                 action = action_lookup[event.key]
-                
+
     # Sharay: Updates the game with the key action
-    game.update(action)
+    if IS_KEYBOARD_MODE:
+        game.update(action)
+    else:
+        game.update(agent.get_move(game))
 
     board = game.game_board
 
