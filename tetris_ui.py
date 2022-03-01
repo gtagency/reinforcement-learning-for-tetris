@@ -8,6 +8,7 @@ engine in {tetris_engine.py}), and possibly in the future to watch our agents
 play the game. Uses pygame and supports arrow keys and WASD controls.
 """
 
+from random import Random
 import pygame
 import sys
 from tetris_engine import *
@@ -21,10 +22,10 @@ game = GameState()
 CELL_SIZE = 30
 GAME_WIDTH = game.width
 GAME_HEIGHT = game.height
-GAME_TICK_DELAY = 10
+GAME_TICK_DELAY = 100
 
 IS_KEYBOARD_MODE = False
-AGENT_TYPE = BruteAgent
+AGENT_TYPE = RandomAgent
 
 screen = pygame.display.set_mode((CELL_SIZE * GAME_WIDTH, CELL_SIZE * GAME_HEIGHT))
 
