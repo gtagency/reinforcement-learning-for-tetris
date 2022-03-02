@@ -8,7 +8,8 @@ TODO: add documentation here
 
 from tetris_engine import *
 import torch
-
+from collections import deque
+from collections import namedtuple
 
 def convert_gamestate_to_tensor(gamestate : GameState):
     width, height = gamestate.width, gamestate.height
@@ -23,3 +24,22 @@ def convert_gamestate_to_tensor(gamestate : GameState):
             elif gamestate.game_board[i][j] < 0:
                 output[N + i * height + j] = 1
     return output
+
+# Replay memory, reference: https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
+
+Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
+class ReplayMemory(object):
+    
+
+    def __init__(self, capacity):
+        self.memory = deque([], maxlen=capacity)
+
+    def push(self, *args):
+        """Save a transition"""
+        self.memory.append(Transition(*args))
+
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+
+    def __len__(self):
+        return len(self.memory)
