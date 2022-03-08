@@ -16,7 +16,7 @@ class TrainingLoop:
     def __init__(self):
         pass
 
-    def loop(self, ephochs state):
+    def loop(self, ephochs, state):
         epochs = 2
 
         for epoch in range(epochs):
