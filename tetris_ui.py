@@ -25,7 +25,7 @@ GAME_HEIGHT = game.height
 GAME_TICK_DELAY = 100
 
 IS_KEYBOARD_MODE = False
-AGENT_TYPE = RandomAgent
+AGENT_TYPE = ModelAgent
 
 screen = pygame.display.set_mode((CELL_SIZE * GAME_WIDTH, CELL_SIZE * GAME_HEIGHT))
 

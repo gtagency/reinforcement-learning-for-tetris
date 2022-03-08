@@ -1,5 +1,8 @@
 # This class contains game agents
 from tetris_engine import *
+from placeholder_pytorch_model import *
+from tetris_utils import *
+import torch
 import random
 #from graphicsUtils import keys_waiting
 #from graphicsUtils import keys_pressed
@@ -60,3 +63,24 @@ class BruteAgent(Agent):
                 best_reward = reward
                 best_move_sequence = action_sequence
         return best_move_sequence[0]
+
+class ModelAgent(Agent):
+    def __init__(self):
+        self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW]
+
+    def get_move(self, state):
+        if state.stop:
+            return Action.RESET
+        else:
+            model = PlaceholderModel()
+            action = self.actions[torch.argmax(model(convert_gamestate_to_tensor(state)))]
+            return action
+
+
+
+
+
+
+
+
+
