@@ -7,58 +7,41 @@ import sys
 import os
 from tetris_engine import *
 from game_agent import *
+import statistics
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
-pygame.init()
 
-game = GameState()
+def game_start(AGENT_TYPE):
 
-rewards = []
 
-# Sharay: some basic information, makes adapting the program easier
-CELL_SIZE = 30
-GAME_WIDTH = game.width
-GAME_HEIGHT = game.height
-GAME_TICK_DELAY = 1
+    totalrewards = []
 
-AGENT_TYPE = BruteAgent
+    for i in range(3):
+        pygame.init()
+        game = GameState()
+        agent = AGENT_TYPE()
 
-screen = pygame.display.set_mode((CELL_SIZE * GAME_WIDTH, CELL_SIZE * GAME_HEIGHT))
+        rewards = []
+        reward = 0
+        while not game.stop:
+            action = Action.IDLE
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit(0)
+                elif event.type == pygame.KEYDOWN:
+                    if event.key in action_lookup:
+                        action = action_lookup[event.key]
 
-# Sharay: Actions currently supported
-action_lookup = {
-    pygame.K_LEFT: Action.LEFT,
-    pygame.K_RIGHT: Action.RIGHT,
-    pygame.K_UP: Action.ROTATE_CW,
-    pygame.K_DOWN: Action.ROTATE_CCW,
-    pygame.K_a: Action.LEFT,
-    pygame.K_d: Action.RIGHT,
-    pygame.K_w: Action.ROTATE_CW,
-    pygame.K_s: Action.ROTATE_CCW,
-    pygame.K_r: Action.RESET
-}
+            game.update(agent.get_move(game))
 
-agent = AGENT_TYPE()
+            board = game.game_board
+            reward = game.get_reward()
+            rewards.append(reward)
+        totalrewards.append(statistics.mean(rewards))
+    return totalrewards
 
-reward = 0
-while reward > -100:
-    # Sharay: this just waits a bit before running, temporary
-    pygame.time.wait(GAME_TICK_DELAY)
+print("BruteAgent rewards",game_start(BruteAgent))
+print("RandomAgent rewards",game_start(RandomAgent))
 
-    action = Action.IDLE
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit(0)
-        elif event.type == pygame.KEYDOWN:
-            if event.key in action_lookup:
-                action = action_lookup[event.key]
-
-    game.update(agent.get_move(game))
-
-    board = game.game_board
-    reward = game.get_reward()
-    rewards.append(reward)
-
-print(sum(rewards)/len(rewards))
