@@ -4,6 +4,7 @@ Authors: Neil Thistlethwaite
 The Agency, Reinforcement Learning for Tetris
 
 TODO: add documentation here
+Order of the five outputs: left, right, up, down, idle
 """
 
 from tetris_engine import *
@@ -29,7 +30,6 @@ def convert_gamestate_to_tensor(gamestate : GameState):
 
 Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
 class ReplayMemory(object):
-    
 
     def __init__(self, capacity):
         self.memory = deque([], maxlen=capacity)
