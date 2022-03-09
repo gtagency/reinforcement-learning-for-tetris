@@ -65,22 +65,15 @@ class BruteAgent(Agent):
         return best_move_sequence[0]
 
 class ModelAgent(Agent):
-    def __init__(self):
+    def __init__(self, model = None):
+        if model is None:
+            model = PlaceholderModel()
+        self.model = model
         self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW]
 
     def get_move(self, state):
         if state.stop:
             return Action.RESET
         else:
-            model = PlaceholderModel()
-            action = self.actions[torch.argmax(model(convert_gamestate_to_tensor(state)))]
+            action = self.actions[torch.argmax(self.model(convert_gamestate_to_tensor(state)))]
             return action
-
-
-
-
-
-
-
-
-
