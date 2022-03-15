@@ -71,9 +71,11 @@ class ModelAgent(Agent):
         self.model = model
         self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW]
 
-    def get_move(self, state):
+    def get_move(self, state, epsilon):
         if state.stop:
             return Action.RESET
+        elif random.random() > epsilon:
+            random.choice(self.actions)
         else:
             action = self.actions[torch.argmax(self.model(convert_gamestate_to_tensor(state)))]
             return action
