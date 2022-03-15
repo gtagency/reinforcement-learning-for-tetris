@@ -12,21 +12,6 @@ methods for the UI and agent to see the game.
 from enum import Enum
 import random
 
-GAME_END_REWARD = -200
-
-# Applied when a line is cleared
-LINE_CLEAR_REWARD = 10
-
-# Applied to disincentivize higher stacks, so if current stack is 3 high,
-# adds reward 3 * (PER_HIGHEST_PIECE_REWARD). Should be negative.
-PER_HIGHEST_PIECE_REWARD = -5
-
-# Applied for each "isolated hole" present in the stack so far.
-PER_ISOLATED_HOLE_REWARD = -3
-
-# Applied whenever a new piece is received
-NEW_PIECE_REWARD = -2
-
 class Action(Enum):
     IDLE = 0
     LEFT = 1
@@ -111,7 +96,6 @@ class GameState:
         self.height = height
         self.current_piece = None
         self.state_num = 0
-        self.reward = 0
         # {self.game_board} entries correspond to following cell states:
         #    0  empty cell
         #   +k  locked with piece of type k
@@ -122,26 +106,10 @@ class GameState:
         self._fill_piece_in_board(-1)
         self.stop = False
 
-    def get_reward(self):
-        reward = self.reward
-        for row in range(self.height-1, -1, -1):
-            if any(self.game_board[i][row] > 0 for i in range(self.width)):
-                # something is on row i, apply penalty
-                reward += PER_HIGHEST_PIECE_REWARD * (row + 1)
-                break
-        for i in range(1, self.width - 1):
-            for j in range(1, self.height - 1):
-                if self.game_board[i][j] == 0:
-                    if all(self.game_board[i+dx][j+dy] > 0 for dx, dy in
-                           ((1,0),(0,1),(-1,0),(0,-1))):
-                        reward += PER_ISOLATED_HOLE_REWARD
-        return reward
-
     def _initialize_piece(self):
         self.game_piece = GamePiece(board_width=self.width,
                                     board_height=self.height)
         self.current_piece = self.game_piece.shape
-        self.reward += NEW_PIECE_REWARD
 
     def _fill_piece_in_board(self, multiplier):
         # multiplier should be 0, +1, or -1, according to piece state
@@ -158,10 +126,10 @@ class GameState:
         self.current_piece = None
         self.game_board = [[0 for col in range(self.height)] for row in range(self.width)]
         self.game_piece = None
-        self.reward = 0
         self._initialize_piece()
         self._fill_piece_in_board(-1)
 
+    # Neil: now returns number of lines that were cleared
     def update(self, action):
         # convert action to a tuple(dx, dy)
         new_piece = []
@@ -170,15 +138,14 @@ class GameState:
         if action == Action.RESET:
             self.stop = False
             self._reset()
-            return
+            return 0
 
         if self.stop == True:
-            return
+            return 0
 
         if action == Action.ROTATE_CCW or action == Action.ROTATE_CW:
             if self.game_piece.shape_num == 2:
-                self._gravity()
-                return
+                return self._gravity()
             xy_mul = -1 if action == Action.ROTATE_CCW else 1
             center_x, center_y = self.current_piece[0]
             for piece in self.current_piece:
@@ -208,8 +175,9 @@ class GameState:
             self._fill_piece_in_board(-1)
 
         # TODO-someday: consider making gravity happen less often?
-        self._gravity()
-
+        return self._gravity()
+    
+    # Neil: now returns number of lines that were cleared
     def _gravity(self):
         # gravity occurs once per 2s
         #if self.state_num < 2:
@@ -224,15 +192,17 @@ class GameState:
                 new_piece.append((piece[0] + x, piece[1] + y))
             else:
                 if piece[1] >= self.height - 2:
-                    self.reward += GAME_END_REWARD
                     self.stop = True
-                self._lock_and_reset()
-                return
+                return self._lock_and_reset()
         
         # Clear previous piece, update current piece, and fill it in board
         self._fill_piece_in_board(0)
         self.current_piece = new_piece
         self._fill_piece_in_board(-1)
+
+        # Neil: if we get down to here, we didn't lock in any pieces (and can't
+        # have cleared any lines)
+        return 0
 
     def _is_valid_piece_location(self, row, col):
         if row < 0 or row >= self.width:
@@ -243,6 +213,7 @@ class GameState:
 
     def _clear_lines(self):
         i = 0
+        num_cleared = 0
         while i < self.height - 1:
             full_row = True
             for j in range(self.width):
@@ -250,13 +221,14 @@ class GameState:
                     full_row = False
     
             if full_row:
+                num_cleared += 1
                 self._fall(i)
                 i -= 1
 
             i += 1
+        return num_cleared
 
     def _fall(self, row):
-        self.reward+=LINE_CLEAR_REWARD
         for i in range(self.height - 1):
             for j in range(self.width):
                 if i >= row:
@@ -267,9 +239,10 @@ class GameState:
     
     def _lock_and_reset(self):
         self._fill_piece_in_board(1)
-        self._clear_lines()
+        num_cleared = self._clear_lines()
         self._initialize_piece()
         self._fill_piece_in_board(-1)
+        return num_cleared
 
 
 

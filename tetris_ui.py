@@ -24,7 +24,7 @@ GAME_WIDTH = game.width
 GAME_HEIGHT = game.height
 GAME_TICK_DELAY = 100
 
-IS_KEYBOARD_MODE = False
+IS_KEYBOARD_MODE = True
 AGENT_TYPE = ModelAgent
 
 screen = pygame.display.set_mode((CELL_SIZE * GAME_WIDTH, CELL_SIZE * GAME_HEIGHT))
@@ -65,12 +65,11 @@ LOCKED_COLORS = [
 
 # Ori - Game Over message:
 font = pygame.font.Font('freesansbold.ttf', 15)
-text = font.render("Game Over - Score: " + str(game.reward) + "- R to restart", True, (255, 255, 255), (0, 0, 0))
-textRect = text.get_rect()
-textRect.center = (150, 100)
 
 if not IS_KEYBOARD_MODE:
     agent = AGENT_TYPE()
+
+lines_cleared = 0
 
 while True:
     # Sharay: this just waits a bit before running, temporary
@@ -87,16 +86,18 @@ while True:
 
     # Sharay: Updates the game with the key action
     if IS_KEYBOARD_MODE:
-        game.update(action)
+        lines_cleared += game.update(action)
     else:
-        game.update(agent.get_move(game))
+        lines_cleared += game.update(agent.get_move(game))
 
     board = game.game_board
 
     # Sharay and Ori: alters colors in the board
     screen.fill((0, 0, 0))
     if game.stop:
-        text = font.render("Game Over - Score: " + str(game.reward) + "- R to restart", True, (255, 255, 255), (0, 0, 0))
+        text = font.render("Game Over - Score: " + str(lines_cleared) + " - R to restart", True, (255, 255, 255), (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (150, 100)
         screen.blit(text, textRect)
     else:
         for i in range(len(board)):
