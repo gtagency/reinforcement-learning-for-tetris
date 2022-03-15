@@ -42,6 +42,21 @@ class LinesClearedReward(RewardFunction):
     pass
 
 
+class LinesClearedMultiplierReward(RewardFunction):
+    def update_and_get_reward(self, state, action):
+        lines_cleared = state.update(action)
+        if lines_cleared == 0:
+            return 0
+        elif lines_cleared == 1:
+            return 1
+        elif lines_cleared == 2:
+            return 3
+        elif lines_cleared == 3:
+            return 6
+        elif lines_cleared == 4:
+            return 10
+
+
 ### old code from state refactor: consider using later?
 ##    def get_reward(self):
 ##        reward = self.reward
