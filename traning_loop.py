@@ -11,24 +11,25 @@ import torch
 import torch.nn as nn
 from tetris_utils import *
 from tetris_engine import *
-import random
-class TrainingLoop:
+from reward_functions import *
 
-    def __init__(self):
+import random
+
+class TrainingLoop:
+    def __init__(self, reward_func=None):
         self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW]
         self.game = GameState()
         self.replay_memory = ReplayMemory()
         # **Question for Neil**: How do we keep track of the Q_value for each Transition state
         self.Q_value = []
         self.batch_size = 5
-        pass
+        if reward_func is None:
+            reward_func = LinesClearedReward()
+        self.reward_func = reward_func
 
-    def loop(self, ephochs, state):
-        epochs = 2
+    def loop(self, epochs, state):
 
         for epoch in range(epochs):
-
-        
             print("\nStart of epoch %d" % (epoch,))
 
             # select an action
@@ -37,24 +38,17 @@ class TrainingLoop:
 
             # need to execute action
 
-            # need to find the reward
-            oldReward = self.game.get_reward()
-
             # convert it to tensor (using the method in utils)
-            oldState = convert_gamestate_to_tensor(self.game.game_board)
+            old_state = convert_gamestate_to_tensor(self.game.game_board)
 
-            self.game.update(action)
-            
-            newReward = self.game.get_reward()
+            reward = self.reward_func.update_and_get_reward(game, action)
 
-            newState = convert_gamestate_to_tensor(self.game.game_board)
-
-            changeInReward = newReward-oldReward
+            new_state = convert_gamestate_to_tensor(self.game.game_board)
 
             #Store the transition in the replay memory
             # if the action increases the reward, it is a good action so we wanna
             # do change in reward instead of the new reward
-            self.replay_memory.push(oldState, action, newState, changeInReward)
+            self.replay_memory.push(old_state, action, new_state, reward)
             # image from the replay memory (x_t+1),
             # s_t+1 = s_t, a_t, x_t+1
 
