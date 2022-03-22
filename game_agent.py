@@ -2,6 +2,7 @@
 from tetris_engine import *
 from placeholder_pytorch_model import *
 from tetris_utils import *
+from reward_functions import *
 import torch
 import random
 #from graphicsUtils import keys_waiting
@@ -34,6 +35,37 @@ class RandomAgent(Agent):
 import copy
 import itertools
 import random
+
+class BruteAgent2(Agent):
+    def __init__(self, depth=3, reward_func=None):
+        self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW]
+        self.depth = depth
+        if reward_func is None:
+            reward_func = LinesClearedReward()
+        self.reward_func = reward_func
+
+    def get_move(self, state):
+        if state.stop:
+            return Action.RESET
+        best_reward = float("-inf")
+        best_moves = []
+        for move in self.actions:
+            state_copy = copy.deepcopy(state)
+            base_reward = self.reward_func.update_and_get_reward(state_copy, move)
+            sub_best_reward = float("-inf")
+            for action_sequence in itertools.product(*[self.actions for _ in range(self.depth - 1)]):
+                this_reward = base_reward
+                state_sub_copy = copy.deepcopy(state_copy)
+                for a in action_sequence:
+                    this_reward += self.reward_func.update_and_get_reward(state_sub_copy, a)
+                sub_best_reward = max(sub_best_reward, this_reward)
+            if sub_best_reward == best_reward:
+                best_moves.append(move)
+            elif sub_best_reward > best_reward:
+                best_moves = [move]
+                best_reward = sub_best_reward
+        return random.choice(best_moves)
+            
 
 class BruteAgent(Agent):
     def __init__(self, depth=3):

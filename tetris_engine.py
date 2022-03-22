@@ -84,8 +84,9 @@ class GamePiece:
         
     def _initialize(self):
         shape_offsets = GAME_PIECE_OFFSETS[self.shape_num]
+        w_offset = random.randint(-1, 0)
         for dx, dy in shape_offsets:
-            self.shape.append((self.width//2 + dx, self.height - 1 + dy))
+            self.shape.append((self.width//2 + w_offset + dx, self.height - 1 + dy))
 
 
 class GameState:

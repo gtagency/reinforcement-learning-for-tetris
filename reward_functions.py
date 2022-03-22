@@ -56,6 +56,22 @@ class LinesClearedMultiplierReward(RewardFunction):
         elif lines_cleared == 4:
             return 10
 
+class HeightPenaltyReward(RewardFunction):
+    def __init__(self, multiplier):
+        self.multiplier = multiplier
+    
+    def update_and_get_reward(self, state, action):
+        lines_cleared = state.update(action)
+        # will add a penalty between [0, -multiplier]
+        # depending on how tall the stack is
+        highest_row = 0
+        for row in range(state.height-1, -1, -1):
+            if any(state.game_board[i][row] > 0 for i in range(state.width)):
+                highest_row = row + 1
+                break
+        reward = lines_cleared - self.multiplier * (highest_row / state.height)
+        return reward
+
 
 ### old code from state refactor: consider using later?
 ##    def get_reward(self):

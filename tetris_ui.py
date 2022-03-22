@@ -12,6 +12,7 @@ from random import Random
 import pygame
 import sys
 from tetris_engine import *
+from reward_functions import *
 from game_agent import *
 
 pygame.init()
@@ -24,7 +25,7 @@ GAME_WIDTH = game.width
 GAME_HEIGHT = game.height
 GAME_TICK_DELAY = 100
 
-IS_KEYBOARD_MODE = True
+IS_KEYBOARD_MODE = False
 AGENT_TYPE = ModelAgent
 
 screen = pygame.display.set_mode((CELL_SIZE * GAME_WIDTH, CELL_SIZE * GAME_HEIGHT))
@@ -70,6 +71,9 @@ if not IS_KEYBOARD_MODE:
     agent = AGENT_TYPE()
 
 lines_cleared = 0
+
+agent = ModelAgent(torch.load("./model-epoch-070.pt"))
+#agent = BruteAgent2(depth=2, reward_func=HeightPenaltyReward(multiplier=0.1))
 
 while True:
     # Sharay: this just waits a bit before running, temporary
