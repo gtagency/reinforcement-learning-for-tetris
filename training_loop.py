@@ -9,6 +9,7 @@ that updates the weights of the model based on the gradient.
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import random
 from tetris_utils import *
 from tetris_engine import *
 from reward_functions import *
@@ -32,25 +33,24 @@ class TrainingLoop:
     def loop(self, epochs):
         self.DQN = DQN = Net()
         model_agent = ModelAgent(model=DQN, epsilon=1)
-        optimizer = optim.Adam(DQN.parameters(), lr=0.001)
-
-        #model_agent = 
+        optimizer = optim.Adam(DQN.parameters(), lr=0.0003)
 
         for epoch in range(epochs):
             print(f"Episode {epoch+1}")
 
-            if epoch >= 10:
-                model_agent.epsilon = 1 - ((epoch - 10) / 90)
-                print("updating epsilon to",model_agent.epsilon)
+            new_epsilon = max(min(1 - ((epoch - 15) / 200), 1), 0.075)
+            if new_epsilon != model_agent.epsilon:
+                model_agent.epsilon = new_epsilon
+                print("updating epsilon to", new_epsilon)
             
             game = GameState()
 
             total_loss = 0.0
             total_reward = 0.0
 
-            if epoch == 3:
-                print("switching to epsilon-greedy")
-                model_agent = ModelAgent(model=DQN, epsilon=1)
+            #if epoch == 3:
+            #    print("switching to epsilon-greedy")
+            #    model_agent = ModelAgent(model=DQN, epsilon=1)
             
             for t in range(self.time_step):
 
@@ -71,7 +71,10 @@ class TrainingLoop:
                 # if the action increases the reward, it is a good action so we wanna
                 # do change in reward instead of the new reward
                 if action != Action.RESET:
-                    self.replay_memory.push(old_state, action, new_state, reward)
+                    # replay memory doesn't seem to store enough line-clears, hopefully
+                    # this will increase good:bad ratio in the memory
+                    if reward > 0 or random.random() < 0.05:
+                        self.replay_memory.push(old_state, action, new_state, reward)
                 # image from the replay memory (x_t+1),
                 # s_t+1 = s_t, a_t, x_t+1
 
@@ -119,7 +122,7 @@ class TrainingLoop:
                     optimizer.step()
 
                     with torch.no_grad():
-                        total_loss += loss
+                        total_loss += loss.item()
 
                     #print("loss =",loss)
 
@@ -127,9 +130,10 @@ class TrainingLoop:
 
                     # gradient descent on (y - Q_value)
 
-            print("max reward in replay memory:",max(x.reward for x in self.replay_memory.memory))
-            print("average loss:",total_loss/self.time_step)
-            print("average reward:",total_reward/self.time_step)
+            print("max reward in replay memory: %0.02f" % max(x.reward for x in self.replay_memory.memory),
+                  "(size is %d)" % len(self.replay_memory))
+            print("average loss: %0.05f" % (total_loss / self.time_step))
+            print("average reward: %0.05f" % (total_reward / self.time_step))
             print()
 
             if (epoch + 1) % 10 == 0:
@@ -138,6 +142,6 @@ class TrainingLoop:
                 torch.save(DQN, model_path)
                 print()
 
-loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.1))
-loop.loop(100)
+loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.04))
+loop.loop(1000)
 
