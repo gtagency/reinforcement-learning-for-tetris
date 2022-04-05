@@ -28,7 +28,7 @@ def convert_gamestate_to_tensor(gamestate : GameState):
 
 # Replay memory, reference: https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 
-Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
+Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward', 'is_terminal'))
 class ReplayMemory(object):
 
     def __init__(self, capacity):
