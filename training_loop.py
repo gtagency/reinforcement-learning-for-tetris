@@ -25,7 +25,7 @@ class TrainingLoop:
         self.batch_size = 32
         self.time_step = 1000
         self.gamma = 0.90
-        self.C = 10
+        self.C = 100
         if reward_func is None:
             reward_func = LinesClearedReward()
         self.reward_func = reward_func
@@ -33,8 +33,8 @@ class TrainingLoop:
     def loop(self, epochs):
         self.DQN = DQN = Net()
         model_agent = ModelAgent(model=DQN, epsilon=1)
-        optimizer = optim.Adam(DQN.parameters(), lr=0.01)
-        self.old_model = self.DQN
+        optimizer = optim.Adam(DQN.parameters(), lr=0.001)
+        self.old_model = Net()
         for epoch in range(epochs):
             print(f"Episode {epoch+1}")
 
@@ -115,13 +115,16 @@ class TrainingLoop:
                     # batch size for the number of rows
                     with torch.no_grad():
                         y = torch.zeros(self.batch_size)
-                        outcomes = DQN(new_state_tensors)
+                        outcomes = self.old_model(new_state_tensors)
                         for i in range(self.batch_size):
-                            y[i] = samples[i].reward + self.gamma*torch.max(outcomes[i])
+                            if samples[i].is_terminal:
+                                y[i] = samples[i].reward
+                            else:
+                                y[i] = samples[i].reward + self.gamma*torch.max(outcomes[i])
                     
                     optimizer.zero_grad()
 
-                    pred = self.old_model(old_state_tensors)[list(range(self.batch_size)), actions]
+                    pred = DQN(old_state_tensors)[list(range(self.batch_size)), actions]
                     # pred here is now just (batch_size,)
                     loss = ((y - pred) ** 2).mean()
                     loss.backward() # produces gradients that are stored
@@ -133,7 +136,7 @@ class TrainingLoop:
 
 
                 if t % self.C == 0:
-                    self.old_model = DQN
+                    self.old_model.load_state_dict(DQN.state_dict())
 
                     #print("loss =",loss)
 
