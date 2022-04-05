@@ -28,12 +28,14 @@ def convert_gamestate_to_tensor(gamestate : GameState):
 
 # Replay memory, reference: https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 
-Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward', 'is_terminal'))
+
+Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward', 'is_next_state_terminal'))
+
 class ReplayMemory(object):
 
     def __init__(self, capacity):
         self.memory = deque([], maxlen=capacity)
-        
+
 
     def push(self, *args):
         """Save a transition"""

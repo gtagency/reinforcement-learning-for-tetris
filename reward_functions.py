@@ -59,8 +59,9 @@ class LinesClearedMultiplierReward(RewardFunction):
             return 10
 
 class HeightPenaltyReward(RewardFunction):
-    def __init__(self, multiplier):
+    def __init__(self, multiplier, game_over_penalty):
         self.multiplier = multiplier
+        self.game_over_penalty = game_over_penalty
     
     def update_and_get_reward(self, state, action):
         lines_cleared = state.update(action)
@@ -72,6 +73,11 @@ class HeightPenaltyReward(RewardFunction):
                 highest_row = row + 1
                 break
         reward = lines_cleared - self.multiplier * (highest_row / state.height)
+
+        if state.stop:
+            reward = reward - self.game_over_penalty
+        return reward
+
         end_game_penalty = -10 * state.stop
         # print(end_game_penalty)
         return reward + end_game_penalty
@@ -116,6 +122,7 @@ class multipleRewards(RewardFunction):
         hole_penalty *= self.hole_mult
         
         return parent_reward + lines_cleared*self.lineclear_mult+height_penalty+hole_penalty 
+
 
 ### old code from state refactor: consider using later?
 ##    def get_reward(self):

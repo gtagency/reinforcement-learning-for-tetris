@@ -71,18 +71,14 @@ class TrainingLoop:
                 #Store the transition in the replay memory
                 # if the action increases the reward, it is a good action so we wanna
                 # do change in reward instead of the new reward
+                is_next_state_terminal = game.stop
+
                 if action != Action.RESET:
                     # replay memory doesn't seem to store enough line-clears, hopefully
                     # this will increase good:bad ratio in the memory
                     if reward > 0 or random.random() < 0.05:
-                        # dummy = torch.reshape(new_state, (2, -1))
-                        # old = torch.reshape(dummy[0,:], (game.width, game.height))
-                        # print(old)
-                        # print("this is one\n")
-                        # is_terminal = torch.sum(old[:,game.height-1]) > 0
-                        is_terminal = game.stop
-                        # print(is_terminal)
-                        self.replay_memory.push(old_state, action, new_state, reward, is_terminal)
+                        self.replay_memory.push(old_state, action, new_state, reward, is_next_state_terminal)
+
                 # image from the replay memory (x_t+1),
                 # s_t+1 = s_t, a_t, x_t+1
 
@@ -117,7 +113,8 @@ class TrainingLoop:
                         y = torch.zeros(self.batch_size)
                         outcomes = self.old_model(new_state_tensors)
                         for i in range(self.batch_size):
-                            if samples[i].is_terminal:
+                            if samples[i].is_next_state_terminal:
+
                                 y[i] = samples[i].reward
                             else:
                                 y[i] = samples[i].reward + self.gamma*torch.max(outcomes[i])
@@ -156,6 +153,8 @@ class TrainingLoop:
                 torch.save(DQN, model_path)
                 print()
 
-loop = TrainingLoop(reward_func=multipleRewards())
+
+loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.04, game_over_penalty=5))
+
 loop.loop(1000)
 
