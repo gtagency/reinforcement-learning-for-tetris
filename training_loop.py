@@ -20,12 +20,12 @@ import random
 
 class TrainingLoop:
     def __init__(self, reward_func=None):
-        self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW]
         self.replay_memory = ReplayMemory(capacity=200000)
         self.Q_value = []
         self.batch_size = 32
-        self.time_step = 10000
+        self.time_step = 1000
         self.gamma = 0.90
+        self.C = 100
         if reward_func is None:
             reward_func = LinesClearedReward()
         self.reward_func = reward_func
@@ -33,8 +33,8 @@ class TrainingLoop:
     def loop(self, epochs):
         self.DQN = DQN = Net()
         model_agent = ModelAgent(model=DQN, epsilon=1)
-        optimizer = optim.Adam(DQN.parameters(), lr=0.0003)
-
+        optimizer = optim.Adam(DQN.parameters(), lr=0.001)
+        self.old_model = Net()
         for epoch in range(epochs):
             print(f"Episode {epoch+1}")
 
@@ -53,7 +53,8 @@ class TrainingLoop:
             #    model_agent = ModelAgent(model=DQN, epsilon=1)
             
             for t in range(self.time_step):
-
+                
+                
                 # select an action
                 action = model_agent.get_move(game)
 
@@ -77,6 +78,7 @@ class TrainingLoop:
                     # this will increase good:bad ratio in the memory
                     if reward > 0 or random.random() < 0.05:
                         self.replay_memory.push(old_state, action, new_state, reward, is_next_state_terminal)
+
                 # image from the replay memory (x_t+1),
                 # s_t+1 = s_t, a_t, x_t+1
 
@@ -88,21 +90,20 @@ class TrainingLoop:
                 if self.batch_size <= len(self.replay_memory):
                     samples = self.replay_memory.sample(self.batch_size)
                     # call ReplayMemory.sample()
-                    old_states = [sample.state for sample in samples]
+                    old_states = []
+                    new_states = []
+                    for sample in samples:
+
+                        old_states.append(sample.state)
+                        new_states.append(sample.next_state)
                     
                     old_state_tensors = torch.zeros(self.batch_size, 400)
+                    new_state_tensors = torch.zeros(self.batch_size, 400)
+                    actions = torch.zeros(self.batch_size, dtype=torch.long)
+
                     for i in range(self.batch_size):
                         old_state_tensors[i] = old_states[i]
-
-                    # for each old state, there will be a corresponding new state
-                    new_states = [sample.next_state for sample in samples]
-                    
-                    new_state_tensors = torch.zeros(self.batch_size, 400)
-                    for i in range(self.batch_size):
                         new_state_tensors[i] = new_states[i]
-
-                    actions = torch.zeros(self.batch_size, dtype=torch.long)
-                    for i in range(self.batch_size):
                         actions[i] = samples[i].action.value
 
                     # take out all the old state variables
@@ -110,9 +111,10 @@ class TrainingLoop:
                     # batch size for the number of rows
                     with torch.no_grad():
                         y = torch.zeros(self.batch_size)
-                        outcomes = DQN(new_state_tensors)
+                        outcomes = self.old_model(new_state_tensors)
                         for i in range(self.batch_size):
                             if samples[i].is_next_state_terminal:
+
                                 y[i] = samples[i].reward
                             else:
                                 y[i] = samples[i].reward + self.gamma*torch.max(outcomes[i])
@@ -128,6 +130,10 @@ class TrainingLoop:
 
                     with torch.no_grad():
                         total_loss += loss.item()
+
+
+                if t % self.C == 0:
+                    self.old_model.load_state_dict(DQN.state_dict())
 
                     #print("loss =",loss)
 
@@ -147,6 +153,8 @@ class TrainingLoop:
                 torch.save(DQN, model_path)
                 print()
 
+
 loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.04, game_over_penalty=5))
+
 loop.loop(1000)
 

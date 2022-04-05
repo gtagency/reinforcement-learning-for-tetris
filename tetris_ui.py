@@ -72,7 +72,7 @@ if not IS_KEYBOARD_MODE:
 
 lines_cleared = 0
 
-agent = ModelAgent(torch.load("./model-epoch-090.pt"))
+agent = ModelAgent(torch.load("./model-epoch-040.pt"))
 #agent = BruteAgent2(depth=2, reward_func=HeightPenaltyReward(multiplier=0.1))
 
 while True:

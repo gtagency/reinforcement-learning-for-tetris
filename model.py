@@ -14,11 +14,14 @@ class Net(nn.Module):
         # how to get the number of actions?
         # guess: self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW] (from training_loop.py)
         self.fc3 = nn.Linear(25, 5)
+        self.drop = nn.Dropout(p=0.1, inplace=False)
 
 
     def forward(self, x):
+        # x = self.drop(x)
         x = self.fc1(x)
         x = F.leaky_relu(x)
+        # x = self.drop(x)
         x = self.fc2(x)
         x = F.leaky_relu(x)
         x = self.fc3(x)

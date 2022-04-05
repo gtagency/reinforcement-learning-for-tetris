@@ -34,7 +34,9 @@ class RewardFunction:
     def update_and_get_reward(self, state, action):
         """Calls {state.update} with {action} and returns the reward."""
         lines_cleared = state.update(action)
-        return lines_cleared
+        end_game_penalty = -10000 * state.stop
+        # print(end_game_penalty)
+        return lines_cleared + end_game_penalty
 
 
 class LinesClearedReward(RewardFunction):
@@ -71,9 +73,55 @@ class HeightPenaltyReward(RewardFunction):
                 highest_row = row + 1
                 break
         reward = lines_cleared - self.multiplier * (highest_row / state.height)
+
         if state.stop:
             reward = reward - self.game_over_penalty
         return reward
+
+        end_game_penalty = -10 * state.stop
+        # print(end_game_penalty)
+        return reward + end_game_penalty
+
+# http://cs231n.stanford.edu/reports/2016/pdfs/121_Report.pdf
+class multipleRewards(RewardFunction):
+    def __init__(self, height_mult=-0.5, hole_mult=-0.36, lineclear_mult=0.8):
+        self.height_mult = height_mult
+        self.hole_mult = hole_mult
+        self.lineclear_mult = lineclear_mult
+    def update_and_get_reward(self, state, action):
+        parent_reward = super().update_and_get_reward(state, action)
+        lines_cleared = state.update(action)
+        height_penalty = 0
+        hole_penalty = 0
+        piece_height_sum = 0
+        top_row = 0
+        for i in range(state.width):
+            max_height = 0
+            j = 0
+            while j < state.height:
+                if state.game_board[i][j] > 0:
+                    max_height = j
+                # if state.game_board[i][j] < 0:
+                #     piece_height_sum += j
+                j += 1
+            height_penalty += 1.3**(max_height + 1) 
+            top_row = max(top_row, max_height)
+            # hole_penalty += sum(state.game_board[i][h] == 0 for h in range(0, max_height))
+            # if hole_count > max_height:
+            #     print(state.get_current_board())
+            # print("max height and hole count: ", max_height, hole_count)
+            
+        # print("hole penalty:", hole_penalty)
+        # print("height penalty", height_penalty)
+        # height_penalty = highest_row * self.height_mult * 20
+
+        height_penalty *= self.height_mult
+        for j in range(top_row):
+            for i in range(state.width):
+                hole_penalty += state.game_board[i][j] == 0
+        hole_penalty *= self.hole_mult
+        
+        return parent_reward + lines_cleared*self.lineclear_mult+height_penalty+hole_penalty 
 
 
 ### old code from state refactor: consider using later?
