@@ -70,11 +70,13 @@ class TrainingLoop:
                 #Store the transition in the replay memory
                 # if the action increases the reward, it is a good action so we wanna
                 # do change in reward instead of the new reward
+                is_next_state_terminal = game.stop
+
                 if action != Action.RESET:
                     # replay memory doesn't seem to store enough line-clears, hopefully
                     # this will increase good:bad ratio in the memory
                     if reward > 0 or random.random() < 0.05:
-                        self.replay_memory.push(old_state, action, new_state, reward)
+                        self.replay_memory.push(old_state, action, new_state, reward, is_next_state_terminal)
                 # image from the replay memory (x_t+1),
                 # s_t+1 = s_t, a_t, x_t+1
 
@@ -110,7 +112,10 @@ class TrainingLoop:
                         y = torch.zeros(self.batch_size)
                         outcomes = DQN(new_state_tensors)
                         for i in range(self.batch_size):
-                            y[i] = samples[i].reward + self.gamma*torch.max(outcomes[i])
+                            if samples[i].is_next_state_terminal:
+                                y[i] = samples[i].reward
+                            else:
+                                y[i] = samples[i].reward + self.gamma*torch.max(outcomes[i])
                     
                     optimizer.zero_grad()
 
@@ -142,6 +147,6 @@ class TrainingLoop:
                 torch.save(DQN, model_path)
                 print()
 
-loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.04))
+loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.04, game_over_penalty=5))
 loop.loop(1000)
 
