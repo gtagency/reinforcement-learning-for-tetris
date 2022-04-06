@@ -84,7 +84,7 @@ class HeightPenaltyReward(RewardFunction):
 
 # http://cs231n.stanford.edu/reports/2016/pdfs/121_Report.pdf
 class multipleRewards(RewardFunction):
-    def __init__(self, height_mult=-8, hole_mult=-0.36, bumpiness_mult=-0.18, lineclear_mult=0.8):
+    def __init__(self, height_mult=-0.8, hole_mult=-0.36, bumpiness_mult=-0.18, lineclear_mult=0.8):
         self.height_mult = height_mult
         self.hole_mult = hole_mult
         self.lineclear_mult = lineclear_mult
@@ -142,7 +142,7 @@ class multipleRewards(RewardFunction):
         
         # print(state.get_current_board())
 
-        height_penalty = max_height * 10
+        height_penalty = global_max_height * 10
         bumpiness_penalty *= self.bumpiness_mult
         height_penalty *= self.height_mult
         hole_penalty *= self.hole_mult
