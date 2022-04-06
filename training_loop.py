@@ -6,6 +6,7 @@ The Agency, Reinforcement Learning for Tetris
 Primary goal of this file is to have a training loop 
 that updates the weights of the model based on the gradient.
 """
+from audioop import mul
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -23,7 +24,7 @@ class TrainingLoop:
         self.replay_memory = ReplayMemory(capacity=200000)
         self.Q_value = []
         self.batch_size = 32
-        self.time_step = 1000
+        self.time_step = 1500
         self.gamma = 0.90
         self.C = 100
         if reward_func is None:
@@ -33,7 +34,7 @@ class TrainingLoop:
     def loop(self, epochs):
         self.DQN = DQN = Net()
         model_agent = ModelAgent(model=DQN, epsilon=1)
-        optimizer = optim.Adam(DQN.parameters(), lr=0.001)
+        optimizer = optim.Adam(DQN.parameters(), lr=0.0001)
         self.old_model = Net()
         for epoch in range(epochs):
             print(f"Episode {epoch+1}")

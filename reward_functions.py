@@ -33,10 +33,10 @@ class RewardFunction:
 
     def update_and_get_reward(self, state, action):
         """Calls {state.update} with {action} and returns the reward."""
-        lines_cleared = state.update(action) ** 2
+
         end_game_penalty = -10000 * state.stop
         # print(end_game_penalty)
-        return lines_cleared + end_game_penalty
+        return end_game_penalty
 
 
 class LinesClearedReward(RewardFunction):
@@ -84,14 +84,14 @@ class HeightPenaltyReward(RewardFunction):
 
 # http://cs231n.stanford.edu/reports/2016/pdfs/121_Report.pdf
 class multipleRewards(RewardFunction):
-    def __init__(self, height_mult=-0.57, hole_mult=-0.36, bumpiness_mult=-0.18, lineclear_mult=0.8):
+    def __init__(self, height_mult=-8, hole_mult=-0.36, bumpiness_mult=-0.18, lineclear_mult=0.8):
         self.height_mult = height_mult
         self.hole_mult = hole_mult
         self.lineclear_mult = lineclear_mult
         self.bumpiness_mult = bumpiness_mult
     def update_and_get_reward(self, state, action):
         parent_reward = super().update_and_get_reward(state, action)
-        lines_cleared = state.update(action)
+        lines_cleared_reward = state.update(action) ** 2 * self.lineclear_mult
         height_penalty = 0
         hole_penalty = 0
         global_max_height = 0
@@ -119,7 +119,7 @@ class multipleRewards(RewardFunction):
 
             hole_penalty += holes
             global_max_height = max(global_max_height, max_height)
-            height_penalty += max_height
+            
             # height_penalty += (max_height + 1) * self.height_mult
             # top_row = max(top_row, max_height)
             # hole_penalty += sum(state.game_board[i][h] == 0 for h in range(0, max_height))
@@ -142,7 +142,7 @@ class multipleRewards(RewardFunction):
         
         # print(state.get_current_board())
 
-
+        height_penalty = max_height * 10
         bumpiness_penalty *= self.bumpiness_mult
         height_penalty *= self.height_mult
         hole_penalty *= self.hole_mult
@@ -159,7 +159,7 @@ class multipleRewards(RewardFunction):
         #     for i in range(state.width):
         #         hole_penalty += state.game_board[i][j] == 0
         # hole_penalty *= self.hole_mult
-        return parent_reward + height_penalty + hole_penalty + bumpiness_penalty 
+        return parent_reward + height_penalty + hole_penalty + bumpiness_penalty + lines_cleared_reward
 
 
 ### old code from state refactor: consider using later?
