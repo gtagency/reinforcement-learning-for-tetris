@@ -33,10 +33,10 @@ class RewardFunction:
 
     def update_and_get_reward(self, state, action):
         """Calls {state.update} with {action} and returns the reward."""
-
-        end_game_penalty = -10000 * state.stop
+        line_clear_reward = state.update()
+        end_game_penalty = -50000 * state.stop
         # print(end_game_penalty)
-        return end_game_penalty
+        return line_clear_reward + end_game_penalty
 
 
 class LinesClearedReward(RewardFunction):
@@ -84,7 +84,7 @@ class HeightPenaltyReward(RewardFunction):
 
 # http://cs231n.stanford.edu/reports/2016/pdfs/121_Report.pdf
 class multipleRewards(RewardFunction):
-    def __init__(self, height_mult=-0.8, hole_mult=-0.36, bumpiness_mult=-0.18, lineclear_mult=0.8):
+    def __init__(self, height_mult=-0.67, hole_mult=-0.36, bumpiness_mult=-0.18, lineclear_mult=0.8):
         self.height_mult = height_mult
         self.hole_mult = hole_mult
         self.lineclear_mult = lineclear_mult

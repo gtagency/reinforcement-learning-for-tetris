@@ -155,7 +155,7 @@ class TrainingLoop:
                 print()
 
 
-loop = TrainingLoop(reward_func=multipleRewards())
+loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.1, game_over_penalty=1000))
 
 loop.loop(1000)
 
