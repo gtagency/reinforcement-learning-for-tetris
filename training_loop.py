@@ -76,8 +76,8 @@ class TrainingLoop:
                 if action != Action.RESET:
                     # replay memory doesn't seem to store enough line-clears, hopefully
                     # this will increase good:bad ratio in the memory
-                    if reward > 0 or random.random() < 0.05:
-                        self.replay_memory.push(old_state, action, new_state, reward, is_next_state_terminal)
+                    # if reward > 0 or random.random() < 0.05:
+                    self.replay_memory.push(old_state, action, new_state, reward, is_next_state_terminal)
 
                 # image from the replay memory (x_t+1),
                 # s_t+1 = s_t, a_t, x_t+1
@@ -150,11 +150,11 @@ class TrainingLoop:
             if (epoch + 1) % 10 == 0:
                 model_path = "model-epoch-%03d.pt" % (epoch + 1)
                 print(f"saving model to '{model_path}'")
-                torch.save(DQN, model_path)
+                torch.save(self.old_model, model_path)
                 print()
 
 
-loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.04, game_over_penalty=5))
+loop = TrainingLoop(reward_func=multipleRewards())
 
 loop.loop(1000)
 
