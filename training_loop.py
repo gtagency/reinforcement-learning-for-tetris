@@ -24,7 +24,7 @@ class TrainingLoop:
         self.replay_memory = ReplayMemory(capacity=200000)
         self.Q_value = []
         self.batch_size = 32
-        self.time_step = 1500
+        self.time_step = 10000
         self.gamma = 0.90
         self.C = 100
         if reward_func is None:
@@ -154,8 +154,8 @@ class TrainingLoop:
                 torch.save(self.old_model, model_path)
                 print()
 
-
-loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.1, game_over_penalty=1000))
+loop = TrainingLoop(reward_func=multipleRewards())
+# loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.04, game_over_penalty=5))
 
 loop.loop(1000)
 
