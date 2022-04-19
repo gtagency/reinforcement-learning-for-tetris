@@ -97,7 +97,7 @@ class BruteAgent(Agent):
         return best_move_sequence[0]
 
 class ModelAgent(Agent):
-    def __init__(self, model = None, epsilon = 0):
+    def __init__(self, model = None, epsilon = 0, prints=False):
         if model is None:
             model = PlaceholderModel()
         self.model = model
@@ -106,6 +106,7 @@ class ModelAgent(Agent):
         self.random_actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.IDLE, Action.LEFT, Action.RIGHT,
                                Action.ROTATE_CW, Action.ROTATE_CCW]
         self.epsilon = epsilon
+        self.prints = prints
 
     def get_move(self, state):
         if state.stop:
@@ -113,5 +114,8 @@ class ModelAgent(Agent):
         elif random.random() < self.epsilon:
             return random.choice(self.random_actions)
         else:
-            action = self.actions[torch.argmax(self.model(convert_gamestate_to_tensor(state)))]
+            scores = self.model(convert_gamestate_to_tensor(state))
+            if self.prints:
+                print(scores)
+            action = self.actions[torch.argmax(scores)]
             return action

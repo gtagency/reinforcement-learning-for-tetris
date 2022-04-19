@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self, use_dropout=False):
         super(Net, self).__init__()
 
         # input <- 400-dimensional vector (corresponding to 0s and 1s with the state)
@@ -14,14 +14,15 @@ class Net(nn.Module):
         # how to get the number of actions?
         # guess: self.actions = [Action.IDLE, Action.LEFT, Action.RIGHT, Action.ROTATE_CW, Action.ROTATE_CCW] (from training_loop.py)
         self.fc3 = nn.Linear(25, 5)
-        self.drop = nn.Dropout(p=0.1, inplace=False)
+        self.drop = nn.Dropout(p=0.3, inplace=False)
+        self.use_dropout = use_dropout
 
 
     def forward(self, x):
-        # x = self.drop(x)
         x = self.fc1(x)
         x = F.leaky_relu(x)
-        # x = self.drop(x)
+        if self.use_dropout:
+            x = self.drop(x)
         x = self.fc2(x)
         x = F.leaky_relu(x)
         x = self.fc3(x)

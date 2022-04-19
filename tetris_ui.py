@@ -23,7 +23,7 @@ game = GameState()
 CELL_SIZE = 30
 GAME_WIDTH = game.width
 GAME_HEIGHT = game.height
-GAME_TICK_DELAY = 100
+GAME_TICK_DELAY = 5 #100
 
 IS_KEYBOARD_MODE = False
 AGENT_TYPE = ModelAgent
@@ -72,8 +72,8 @@ if not IS_KEYBOARD_MODE:
 
 lines_cleared = 0
 
-agent = RandomAgent()
-#agent = ModelAgent(torch.load("./model-epoch-140.pt"))
+#agent = RandomAgent()
+agent = ModelAgent(torch.load("./run-4-18-2/checkpoint-141.pt"), prints=True)
 #agent = BruteAgent2(depth=2, reward_func=HeightPenaltyReward(multiplier=0.1))
 
 frame_count = 0

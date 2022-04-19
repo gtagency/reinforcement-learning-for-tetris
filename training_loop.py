@@ -33,11 +33,12 @@ class TrainingLoop:
         self.replay_memory = ReplayMemory(capacity=200000)
         self.Q_value = []
         self.batch_size = 32
-        self.training_frames = 10_000_000
+        #self.training_frames = 10_000_000
+        self.training_frames = 20_000_000
         self.print_frequency = 10_000
         self.model_checkpoint_frequency = 100_000
         self.replay_start_size = 50_000
-        self.gamma = 0.99
+        self.gamma = 0.997
         self.target_network_update_frequency = 10_000
 
         if save_dir is None:
@@ -54,15 +55,18 @@ class TrainingLoop:
 
         if reward_func is None:
             reward_func = LinesClearedReward()
+        
         self.reward_func = reward_func
 
     def determine_epsilon_from_schedule(self, current_frame_count):
         # hard coded to use deepmind paper value(s)
         # TODO: make this use {self.epsilon_schedule}
-        return max(1 - 0.9 * (current_frame_count / 1_000_000), 0.1)
+        #return max(1 - 0.9 * (current_frame_count / 1_000_000), 0.1)
+        return max(1 - 0.9 * (current_frame_count / 4_000_000), 0.1)
 
     def loop(self, epochs):
-        self.DQN = DQN = Net()
+        self.DQN = DQN = Net(use_dropout=True)
+        DQN.train()
         model_agent = ModelAgent(model=DQN, epsilon=1)
         #optimizer = optim.Adam(DQN.parameters(), lr=0.0001)
         optimizer = optim.RMSprop(DQN.parameters(), lr=0.00025, momentum=0.95, alpha=0.95, eps=0.01)
@@ -244,7 +248,8 @@ class TrainingLoop:
             #    torch.save(self.old_model, model_path)
             #    print()
 
-loop = TrainingLoop(save_dir="run-4-12", reward_func=HeightPenaltyReward(multiplier=0.1, game_over_penalty=10))
+#loop = TrainingLoop(save_dir="run-4-12", reward_func=HeightPenaltyReward(multiplier=0.1, game_over_penalty=10))
+loop = TrainingLoop(save_dir="run-4-18-2", reward_func=HeightPenaltyReward(multiplier=0.1, game_over_penalty=5))
 #loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.1, game_over_penalty=1000))
 
 loop.loop(1000)
