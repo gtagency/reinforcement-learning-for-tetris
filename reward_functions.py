@@ -143,7 +143,7 @@ class multipleRewards(RewardFunction):
         
         # print(state.get_current_board())
 
-        height_penalty = global_max_height * 5
+        height_penalty = global_max_height
         bumpiness_penalty *= self.bumpiness_mult
         height_penalty *= self.height_mult
         hole_penalty *= self.hole_mult
