@@ -90,7 +90,8 @@ class multipleRewards(RewardFunction):
         self.lineclear_mult = lineclear_mult
         self.bumpiness_mult = bumpiness_mult
     def update_and_get_reward(self, state, action):
-        parent_reward = super().update_and_get_reward(state, action)
+        # parent_reward = super().update_and_get_reward(state, action)
+        end_game_reward = -20 * state.stop
         lines_cleared_reward = state.update(action) ** 2 * self.lineclear_mult
         height_penalty = 0
         hole_penalty = 0
@@ -159,7 +160,7 @@ class multipleRewards(RewardFunction):
         #     for i in range(state.width):
         #         hole_penalty += state.game_board[i][j] == 0
         # hole_penalty *= self.hole_mult
-        return parent_reward + height_penalty + hole_penalty + bumpiness_penalty + lines_cleared_reward
+        return end_game_reward + height_penalty + hole_penalty + bumpiness_penalty + lines_cleared_reward
 
 
 ### old code from state refactor: consider using later?
