@@ -246,7 +246,7 @@ class TrainingLoop:
             #    torch.save(self.old_model, model_path)
             #    print()
 
-loop = TrainingLoop(save_dir="run-4-19", reward_func=HeightPenaltyReward(multiplier=0.1, game_over_penalty=10))
+loop = TrainingLoop(save_dir="run-4-19", reward_func=multipleRewards())
 #loop = TrainingLoop(reward_func=HeightPenaltyReward(multiplier=0.1, game_over_penalty=1000))
 
 
