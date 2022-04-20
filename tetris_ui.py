@@ -72,8 +72,14 @@ if not IS_KEYBOARD_MODE:
 
 lines_cleared = 0
 
+
 agent = ModelAgent(torch.load("./checkpoint-141.pt"))
+
+agent = RandomAgent()
+#agent = ModelAgent(torch.load("./model-epoch-140.pt"))
 #agent = BruteAgent2(depth=2, reward_func=HeightPenaltyReward(multiplier=0.1))
+
+frame_count = 0
 
 while True:
     # Sharay: this just waits a bit before running, temporary
@@ -93,6 +99,7 @@ while True:
         lines_cleared += game.update(action)
     else:
         lines_cleared += game.update(agent.get_move(game))
+    frame_count += 1
 
     board = game.game_board
 
@@ -103,6 +110,7 @@ while True:
         textRect = text.get_rect()
         textRect.center = (150, 100)
         screen.blit(text, textRect)
+        print("Game ended at",frame_count,"frames")
     else:
         for i in range(len(board)):
             for j in range(len(board[0])):
